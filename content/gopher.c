@@ -488,7 +488,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 			username++;
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"telnet://%s%s%s%s%s\">"HTML_LF
-				"<span class=\"dir\">%s</span></a>"HTML_LF
+				"<span class=\"telnet\">%s</span></a>"HTML_LF
 				"<br/>"HTML_LF,
 				username ? username : "",
 				username ? "@" : "",
@@ -564,7 +564,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		/* fallback to default, link them */
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
-				"<span class=\"dir\">%s</span></a>"HTML_LF
+				"<span class=\"img\">%s</span></a>"HTML_LF
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
@@ -584,7 +584,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		if (redirect_url) {
 			error = snprintf(buffer, buffer_length,
 					"<a href=\"%s\">"HTML_LF
-					"<span class=\"link\">%s</span></a>"HTML_LF
+					"<span class=\"html\">%s</span></a>"HTML_LF
 					"<br/>"HTML_LF,
 					redirect_url,
 					nice_text);
@@ -592,7 +592,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 			/* cf. gopher://sdf.org/1/sdf/classes/ */
 			error = snprintf(buffer, buffer_length,
 					"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
-					"<span class=\"dir\">%s</span></a>"HTML_LF
+					"<span class=\"html\">%s</span></a>"HTML_LF
 					"<br/>"HTML_LF,
 					fields[FIELD_HOST],
 					alt_port ? ":" : "",
@@ -626,7 +626,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		LOG(("warning: unknown gopher item type 0x%02x '%c'", type, type));
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
-				"<span class=\"dir\">%s</span></a>"HTML_LF
+				"<span class=\"unknown\">%s</span></a>"HTML_LF
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",

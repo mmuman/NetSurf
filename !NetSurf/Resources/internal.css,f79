@@ -237,3 +237,44 @@ p.imagecachelist span {
 	display: table-cell;
 }
 
+
+/*
+ * gopher listing style
+ */
+
+body#gopher {
+	/* margin: 10px;*/
+	background-color: #abf;
+	font-size: 100%;
+	padding-bottom: 2em; }
+
+body#gopher h1 {
+	padding: 5mm;
+	margin: 0;
+	border-bottom: 2px solid #777; }
+
+body#gopher span {
+	background-color: #b2c3ff;
+	margin-left: 1em;
+	padding-left: 2em;
+	font-family: Courier, monospace;
+	white-space: pre-wrap; }
+
+body#gopher span.error {
+	color: #f00; }
+
+body#gopher span.dir {
+	background-image: url('resource:icons/directory.png');
+	background-repeat: no-repeat;
+	background-position: bottom left; }
+
+body#gopher span.text {
+	background-image: url('resource:icons/content.png');
+	background-repeat: no-repeat;
+	background-position: bottom left; }
+
+body#gopher span.query {
+	background-image: url('resource:icons/search.png');
+	background-repeat: no-repeat;
+	background-position: bottom left; }
+
