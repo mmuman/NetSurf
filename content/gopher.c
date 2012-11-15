@@ -235,7 +235,7 @@ static char *html_escape_string(char *str)
 static char *gen_nice_title(const char *path)
 {
 	const char *tmp;
-	char *nice_path, *cnv;
+	char *nice_path;
 	char *title;
 	int title_length;
 
@@ -246,7 +246,7 @@ static char *gen_nice_title(const char *path)
 	}
 
 	/* Construct a localised title string */
-	title_length = (cnv - nice_path) + strlen(messages_get("FileIndex"));
+	title_length = strlen(nice_path) + strlen(messages_get("FileIndex"));
 	title = malloc(title_length + 1);
 
 	if (title == NULL) {
