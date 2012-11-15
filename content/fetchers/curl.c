@@ -484,8 +484,6 @@ void * fetch_curl_setup_gopher(struct fetch *parent_fetch, nsurl *url,
 		LOG(("fetch %p, gopher error for '%s'", f, nsurl_access(url)));
 	}
 
-	gopher_probe_mime(f->gopher, NULL, 0);
-
 	return f;
 }
 

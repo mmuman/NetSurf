@@ -43,6 +43,7 @@
 #include <math.h>
 #include <sys/param.h>
 
+#include <libwapcaplet/libwapcaplet.h>
 #include "content/content_protected.h"
 #include "content/fetch.h"
 #include "content/gopher.h"
@@ -248,22 +249,59 @@ long gopher_get_http_code(struct gopher_state *s, char *data, size_t size)
 		/* delay until we get data */
 		return 0;
 
-	if (gopher_need_generate(s->type)) {
-		/* We didn't receive anything yet, check for error.
-		 * type '3' items report an error
-		 */
-		/*LOG(("data[0] == 0x%02x '%c'", data[0], data[0]));*/
-		if (data[0] == GOPHER_TYPE_ERROR) {
+	/* We didn't receive anything yet, check for error.
+	 * type '3' items report an error
+	 */
+	/*LOG(("data[0] == 0x%02x '%c'", data[0], data[0]));*/
+	if (data[0] == GOPHER_TYPE_ERROR) {
+		lwc_string *path;
+		size_t i = 1;
+
+		if (gopher_need_generate(s->type)) {
 			/* TODO: try to guess better from the string ?
 			 * like "3 '/bcd' doesn't exist!"
 			 * XXX: it might not always be a 404
 			 */
 			return 404;
-		} else {
+		}
+		/* Check more carefully for possible error vs valid data.
+		 * Usually we get something like:
+		 * 3 '/foo' does not exist	error.host	1
+		 */
+		if (i >= size)
+			return 200;
+		if (data[i] == ' ')
+			i++;
+		if (i >= size)
+			return 200;
+		if (data[i++] != '\'')
+			return 200;
+		path = nsurl_get_component(s->url, NSURL_PATH);
+		if (path == NULL)
+			return 200;
+		if (lwc_string_length(path) < 2 ||
+				(size - i) < lwc_string_length(path) ||
+				strncmp(&data[i], lwc_string_data(path) + 2,
+				lwc_string_length(path) - 2)) {
+			lwc_string_unref(path);
 			return 200;
 		}
-	} else
-		return 200;	/* TODO: handle other types better */
+		i += lwc_string_length(path) - 2;
+		lwc_string_unref(path);
+		if (i >= size)
+			return 200;
+		if (data[i++] != '\'')
+			return 200;
+		/* XXX: check even more? */
+
+		s->type = GOPHER_TYPE_DIRECTORY;
+		/* force the Content-type */
+		gopher_probe_mime(s, NULL, 0);
+
+		return 404;
+	}
+
+	return 200;
 }
 
 /**
