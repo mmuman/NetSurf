@@ -398,4 +398,13 @@ nserror nsurl_parent(const nsurl *url, nsurl **new_url);
  */
 void nsurl_dump(const nsurl *url);
 
+/**
+ * Extract the gopher document type from an URL
+ *
+ * \param url     NetSurf URL
+ * \param result  pointer to buffer to hold result
+ * \return NSERROR_OK on success
+ */
+nserror nsurl_gopher_type(const nsurl *url, char *result);
+
 #endif

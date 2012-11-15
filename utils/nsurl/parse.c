@@ -1570,3 +1570,25 @@ nserror nsurl_join(const nsurl *base, const char *rel, nsurl **joined)
 
 	return NSERROR_OK;
 }
+
+/* exported interface, documented in utils/nsurl.h */
+nserror nsurl_gopher_type(const nsurl *url, char *result)
+{
+	nserror status = NSERROR_NOT_FOUND;
+	lwc_string *path;
+
+	assert(url);
+
+	path = nsurl_get_component(url, NSURL_PATH);
+	if (path != NULL) {
+		if (lwc_string_length(path) < 2)
+			*result = '1';
+		else if (lwc_string_data(path)[0] == '/')
+			*result = lwc_string_data(path)[1];
+			/* TODO: check for validity (isalnum ? > 0x20 ?) */
+		status = NSERROR_OK;
+		lwc_string_unref(path);
+	}
+	//url_destroy_components(&components);
+	return status;
+}
