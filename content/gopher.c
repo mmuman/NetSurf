@@ -45,6 +45,7 @@ static bool gopher_generate_row(const char **data, size_t *size,
 		char *buffer, int buffer_length);
 static bool gopher_generate_bottom(char *buffer, int buffer_length);
 
+/** Types of fields in a line */
 typedef enum {
 	FIELD_NAME,
 	FIELD_SELECTOR,
@@ -55,6 +56,7 @@ typedef enum {
 	FIELD_COUNT = FIELD_EOL
 } gopher_field;
 
+/** Map of gopher types to MIME types */
 static struct {
 	gopher_item_type type;
 	const char *mime;
@@ -72,6 +74,10 @@ static struct {
 	{ 0, NULL }
 };
 
+/**
+ * Initialise the state object.
+ */
+
 struct gopher_state *gopher_state_create(nsurl *url, struct fetch *fetch_handle)
 {
 	struct gopher_state *ctx;
@@ -85,6 +91,10 @@ struct gopher_state *gopher_state_create(nsurl *url, struct fetch *fetch_handle)
 	ctx->cached = 0;
 	return ctx;
 }
+
+/**
+ * Finalise the state object.
+ */
 
 void gopher_state_free(struct gopher_state *s)
 {
@@ -200,6 +210,11 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 
 }
 
+/**
+ * Escape a string using HTML entities.
+ *
+ * \return	malloc()ed string.
+ */
 
 static char *html_escape_string(const char *str)
 {
@@ -243,6 +258,11 @@ static char *html_escape_string(const char *str)
 	return nice_str;
 }
 
+/**
+ * Generate a title based on the directory path.
+ *
+ * \return	malloc()ed string.
+ */
 
 static char *gen_nice_title(const char *path)
 {
