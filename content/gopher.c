@@ -52,6 +52,7 @@
 #include "utils/log.h"
 #include "utils/messages.h"
 #include "utils/utils.h"
+#include "utils/url.h"
 
 static char *gen_nice_title(const char *path);
 static bool gopher_generate_top(char *buffer, int buffer_length);
@@ -96,17 +97,22 @@ static struct {
 
 struct gopher_state *gopher_state_create(nsurl *url, struct fetch *fetch_handle)
 {
-	struct gopher_state *ctx;
-	ctx = malloc(sizeof(struct gopher_state));
-	if (ctx == NULL)
+	struct gopher_state *s;
+	s = malloc(sizeof(struct gopher_state));
+	if (s == NULL)
 		return NULL;
-	/**/
-	ctx->url = nsurl_ref(url);
-	ctx->fetch_handle = fetch_handle;
-	ctx->head_done = false;
-	ctx->cached = 0;
-	ctx->input = NULL;
-	return ctx;
+
+	s->url = nsurl_ref(url);
+	s->fetch_handle = fetch_handle;
+	s->head_done = false;
+	s->cached = 0;
+	s->input = NULL;
+
+	s->type = GOPHER_TYPE_NONE;
+	url_gopher_type(nsurl_access(url), &s->type);
+	/* on error s->type is left unchanged */
+
+	return s;
 }
 
 /**
@@ -234,12 +240,20 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 
 long gopher_get_http_code(struct gopher_state *s, char *data, size_t size)
 {
+	if (s->type == GOPHER_TYPE_NONE)
+		/* it's really a bad request */
+		return 400;
+
+	if (size == 0)
+		/* delay until we get data */
+		return 0;
+
 	if (gopher_need_generate(s->type)) {
 		/* We didn't receive anything yet, check for error.
 		 * type '3' items report an error
 		 */
 		/*LOG(("data[0] == 0x%02x '%c'", data[0], data[0]));*/
-		if (size > 0 && data[0] == GOPHER_TYPE_ERROR) {
+		if (data[0] == GOPHER_TYPE_ERROR) {
 			/* TODO: try to guess better from the string ?
 			 * like "3 '/bcd' doesn't exist!"
 			 * XXX: it might not always be a 404
@@ -250,6 +264,42 @@ long gopher_get_http_code(struct gopher_state *s, char *data, size_t size)
 		}
 	} else
 		return 200;	/* TODO: handle other types better */
+}
+
+/**
+ * Probe the MIME type for the gopher handle, and send Content-type header.
+ *
+ * \return	true iff MIME type was correctly guessed.
+ */
+
+bool gopher_probe_mime(struct gopher_state *s, char *data, size_t size)
+{
+	const char *mime;
+	char h[80];
+	fetch_msg msg;
+
+	mime = gopher_type_to_mime(s->type);
+
+	/* TODO: use the newer mime sniffer API,
+	 * fetch_filetype() is wrongly assuming unknown files to be HTML.
+	 */
+	if (mime == NULL)
+		mime = fetch_filetype(nsurl_access(s->url));
+
+	if (mime) {
+		LOG(("gopher %p mime is '%s'", s, mime));
+		snprintf(h, sizeof h, "Content-type: %s\r\n", mime);
+		h[sizeof h - 1] = 0;
+
+		msg.type = FETCH_HEADER;
+		msg.data.header_or_data.buf = (const uint8_t *) h;
+		msg.data.header_or_data.len = strlen(h);
+		fetch_send_callback(&msg, s->fetch_handle);
+
+		return true;
+	}
+
+	return false;
 }
 
 /**
