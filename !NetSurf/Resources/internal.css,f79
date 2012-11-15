@@ -217,17 +217,17 @@ body#gopher span.error {
 	color: #f00; }
 
 body#gopher span.dir {
-	background-image: url('resource:Icons/directory.png');
+	background-image: url('resource:icons/directory.png');
 	background-repeat: no-repeat;
 	background-position: bottom left; }
 
 body#gopher span.text {
-	background-image: url('resource:Icons/content.png'); 
+	background-image: url('resource:icons/content.png'); 
 	background-repeat: no-repeat;
 	background-position: bottom left; }
 
 body#gopher span.query {
-	background-image: url('resource:Icons/search.png'); 
+	background-image: url('resource:icons/search.png'); 
 	background-repeat: no-repeat;
 	background-position: bottom left; }
 
