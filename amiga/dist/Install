@@ -581,6 +581,10 @@
 			(p_fitr "ENVARC:launch-handler/URL/FILE.LH" "ClientName=\"NETSURF\"   ClientPath=\"APPDIR:NETSURF\"   CMDFORMAT=\"URL=*\"file:///%s*\"\"")
 		)
 
+		(if (= (p_chk_launch-handler "GOPHER.LH") 0)
+			(p_fitr "ENVARC:launch-handler/URL/GOPHER.LH" "ClientName=\"NETSURF\"   ClientPath=\"APPDIR:NETSURF\"   CMDFORMAT=\"URL=*\"gopher://%s*\"\"")
+		)
+
 		(if (= (p_chk_launch-handler "HTTP.LH") 0)
 			(p_fitr "ENVARC:launch-handler/URL/HTTP.LH" "ClientName=\"NETSURF\"   ClientPath=\"APPDIR:NETSURF\"   CMDFORMAT=\"URL=*\"http://%s*\"\"")
 		)

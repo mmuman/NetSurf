@@ -44,6 +44,7 @@
 			<string>org.netsurf-browser.NetSurf.URI</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>gopher</string>
 				<string>http</string>
 				<string>https</string>
 			</array>
