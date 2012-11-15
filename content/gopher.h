@@ -39,13 +39,17 @@ typedef enum {
 	GOPHER_TYPE_QUERY	= '7',	/* search query */
 	GOPHER_TYPE_TELNET	= '8',	/* telnet link */
 	GOPHER_TYPE_BINARY	= '9',
+	GOPHER_TYPE_DUPSERV	= '+',	/* duplicated server */
 	GOPHER_TYPE_GIF		= 'g',	/* GIF image */
+	GOPHER_TYPE_IMAGE	= 'I',	/* image (depends, usually jpeg) */
+	GOPHER_TYPE_TN3270	= 'T',	/* tn3270 session */
+	/* not standardized but widely used,
+	 * cf. http://en.wikipedia.org/wiki/Gopher_%28protocol%29#Gopher_item_types
+	 */
 	GOPHER_TYPE_HTML	= 'h',	/* HTML file or URL */
 	GOPHER_TYPE_INFO	= 'i',	/* information text */
-	GOPHER_TYPE_IMAGE	= 'I',	/* image (depends, usually jpeg) */
 	GOPHER_TYPE_AUDIO	= 's',	/* audio (wav?) */
-	GOPHER_TYPE_TN3270	= 'T',	/* tn3270 session */
-	/* those are not standardized */
+	/* not standardized, some servers use them */
 	GOPHER_TYPE_PDF		= 'd',	/* seems to be only for PDF files */
 	GOPHER_TYPE_PNG		= 'p'	/* cf. gopher://namcub.accelera-labs.com/1/pics */
 } gopher_item_type;
