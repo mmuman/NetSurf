@@ -329,4 +329,13 @@ nserror nsurl_nice(const nsurl *url, char **result, bool remove_extensions);
  */
 nserror nsurl_parent(const nsurl *url, nsurl **new_url);
 
+/**
+ * Extract the gopher document type from an URL
+ *
+ * \param url     NetSurf URL
+ * \param result  pointer to buffer to hold result
+ * \return NSERROR_OK on success
+ */
+nserror nsurl_gopher_type(const nsurl *url, char *result);
+
 #endif
