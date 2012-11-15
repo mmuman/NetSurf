@@ -22,12 +22,16 @@
 
 /*
  * docs:
+ * gopher://gopher.floodgap.com/1/gopher/tech
  * gopher://gopher.floodgap.com/0/overbite/dbrowse?pluginm%201
  *
  * tests:
  * gopher://sdf.org/1/sdf/historical	images
+ * gopher://gopher.r-36.net/1/	large photos
  * gopher://sdf.org/1/sdf/classes	binaries
  * gopher://sdf.org/1/users/	long page
+ * gopher://jgw.mdns.org/1/	search items
+ * gopher://jgw.mdns.org/1/MISC/	's' item (sound)
  * gopher://gopher.floodgap.com/1/gopher	empty+broken link - fixed 2012/04/08
  * gopher://sdf.org/1/maps/m	missing lines - fixed 2012/04/08
  */
