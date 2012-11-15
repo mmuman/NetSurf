@@ -46,6 +46,8 @@
 	char *http_proxy_auth_user;		\
 	/** Proxy authentication password */	\
 	char *http_proxy_auth_pass;		\
+	/** Inline images in gopher pages. */	\
+	bool gopher_inline_images;		\
 	/** Default font size / 0.1pt. */	\
 	int font_size;				\
 	/** Minimum font size. */		\
@@ -205,6 +207,7 @@
 	.http_proxy_auth = OPTION_HTTP_PROXY_AUTH_NONE,	\
 	.http_proxy_auth_user = NULL,			\
 	.http_proxy_auth_pass = NULL,			\
+	.gopher_inline_images = false,			\
 	.font_size = 128,				\
 	.font_min_size = 85,				\
 	.font_sans = NULL,				\
@@ -298,6 +301,7 @@
 	{ "http_proxy_auth",	OPTION_INTEGER,	&nsoptions.http_proxy_auth }, \
 	{ "http_proxy_auth_user", OPTION_STRING, &nsoptions.http_proxy_auth_user }, \
 	{ "http_proxy_auth_pass", OPTION_STRING, &nsoptions.http_proxy_auth_pass }, \
+	{ "gopher_inline_images", OPTION_BOOL, &nsoptions.gopher_inline_images }, \
 	{ "font_size",		OPTION_INTEGER,	&nsoptions.font_size },	\
 	{ "font_min_size",	OPTION_INTEGER,	&nsoptions.font_min_size }, \
 	{ "font_sans",		OPTION_STRING,	&nsoptions.font_sans },	\
