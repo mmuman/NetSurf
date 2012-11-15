@@ -469,7 +469,7 @@ void * fetch_curl_setup_gopher(struct fetch *parent_fetch, nsurl *url,
 {
 	struct curl_fetch_info *f;
 	const char *mime;
-	char type;
+
 	f = fetch_curl_setup(parent_fetch, url, only_2xx, post_urlenc,
 		 post_multipart, headers);
 
@@ -480,9 +480,10 @@ void * fetch_curl_setup_gopher(struct fetch *parent_fetch, nsurl *url,
 	}
 
 	if (url_gopher_type(nsurl_access(url), &f->gopher->type) != URL_FUNC_OK
-			|| type == GOPHER_TYPE_NONE) {
+			|| f->gopher->type == GOPHER_TYPE_NONE) {
 		f->http_code = 404;
 		fetch_set_http_code(f->fetch_handle, f->http_code);
+		LOG(("fetch %p, gopher error for '%s'", f, nsurl_access(url)));
 	}
 
 	mime = gopher_type_to_mime(f->gopher->type);
@@ -490,13 +491,13 @@ void * fetch_curl_setup_gopher(struct fetch *parent_fetch, nsurl *url,
 	 * fetch_filetype() is wrongly assuming unknown files to be HTML.
 	 */
 	if (mime == NULL)
-		mime = fetch_filetype(url);
+		mime = fetch_filetype(nsurl_access(url));
 
 	if (mime) {
 		char s[80];
 		fetch_msg msg;
 
-		fprintf(stderr, "gopher mime is '%s'\n", mime);
+		LOG(("fetch %p, gopher mime is '%s'", f, mime));
 		snprintf(s, sizeof s, "Content-type: %s\r\n", mime);
 		s[sizeof s - 1] = 0;
 		msg.type = FETCH_HEADER;
