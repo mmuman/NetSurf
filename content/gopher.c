@@ -137,7 +137,7 @@ void gopher_state_free(struct gopher_state *s)
 
 size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 {
-	char buffer[1024];
+	char buffer[4096];
 	const char *p = data;
 	size_t left = size;
 	fetch_msg msg;
