@@ -113,7 +113,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 	size_t remaining = size;
 	size_t left;
 	fetch_msg msg;
-	/*fprintf(stderr, "%s(,, %d)\n", __FUNCTION__, size);*/
+	LOG(("gopher %p, (,, %d)", s, size));
 
 	/* actually called when done getting it all */
 	if (size == 0)
@@ -137,7 +137,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 	 * than the input buffer...
 	 */
 
-	/*fprintf(stderr, "iteration: cached %d remaining %d\n", s->cached, remaining);*/
+	LOG(("iteration: cached %d remaining %d", s->cached, remaining));
 
 	p = s->input;
 	left = MIN(sizeof(s->input) - s->cached, remaining);
@@ -147,7 +147,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 	s->cached += left;
 	left = s->cached;
 
-	/*fprintf(stderr, "copied: cached %d remaining %d\n", s->cached, remaining);*/
+	LOG(("copied: cached %d remaining %d", s->cached, remaining));
 
 	if (!s->head_done)
 	{
@@ -180,7 +180,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 
 	while (gopher_generate_row(&p, &left, buffer, sizeof(buffer)))
 	{
-		/*fprintf(stderr, "done row, left %d\n", left);*/
+		LOG(("done row, left %d", left));
 		/* send data to the caller */
 		/*LOG(("FETCH_DATA"));*/
 		msg.type = FETCH_DATA;
@@ -188,7 +188,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 		msg.data.header_or_data.len = strlen(buffer);
 		fetch_send_callback(&msg, s->fetch_handle);
 	}
-	/*fprintf(stderr, "last row, left %d\n", left);*/
+	LOG(("last row, left %d", left));
 
 	/* move the remainder to the beginning of the buffer */
 	if (left)
@@ -587,7 +587,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 				type, fields[FIELD_SELECTOR]);
 		break;
 	default:
-		LOG(("warning: unknown gopher item type 0x%02x '%c'\n", type, type));
+		LOG(("warning: unknown gopher item type 0x%02x '%c'", type, type));
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
 				"<span class=\"unknown\">%s</span></a>"HTML_LF
@@ -638,7 +638,7 @@ static bool gopher_generate_row(const char **data, size_t *size,
 		if (!type) {
 			type = *p;
 			if (!type || type == '\n' || type == '\r') {
-				LOG(("warning: invalid gopher item type 0x%02x\n", type));
+				LOG(("warning: invalid gopher item type 0x%02x", type));
 			}
 			s++;
 			continue;
@@ -646,15 +646,15 @@ static bool gopher_generate_row(const char **data, size_t *size,
 		switch (*p) {
 		case '\n':
 			if (field > 0) {
-				LOG(("warning: unterminated gopher item '%c'\n", type));
+				LOG(("warning: unterminated gopher item '%c'", type));
 			}
 			/* FALLTHROUGH */
 		case '\r':
 			if (sz < 1 || p[1] != '\n') {
-				LOG(("warning: CR without LF in gopher item '%c'\n", type));
+				LOG(("warning: CR without LF in gopher item '%c'", type));
 			}
 			if (field < FIELD_PORT && type != '.') {
-				LOG(("warning: unterminated gopher item '%c'\n", type));
+				LOG(("warning: unterminated gopher item '%c'", type));
 			}
 			fields[field] = malloc(p - s + 1);
 			memcpy(fields[field], s, p - s);
@@ -680,7 +680,7 @@ static bool gopher_generate_row(const char **data, size_t *size,
 			return ok;
 		case '\x09':
 			if (field >= FIELD_GPFLAG) {
-				LOG(("warning: extra tab in gopher item '%c'\n", type));
+				LOG(("warning: extra tab in gopher item '%c'", type));
 				break;
 			}
 			fields[field] = malloc(p - s + 1);
