@@ -45,6 +45,16 @@ static bool gopher_generate_row(const char **data, size_t *size,
 		char *buffer, int buffer_length);
 static bool gopher_generate_bottom(char *buffer, int buffer_length);
 
+typedef enum {
+	FIELD_NAME,
+	FIELD_SELECTOR,
+	FIELD_HOST,
+	FIELD_PORT,
+	FIELD_GPFLAG,
+	FIELD_EOL,
+	FIELD_COUNT = FIELD_EOL
+} gopher_field;
+
 static struct {
 	gopher_item_type type;
 	const char *mime;
@@ -362,7 +372,7 @@ static bool gopher_generate_title(const char *title, char *buffer, int buffer_le
  * Internal worker called by gopher_generate_row().
  */
 
-static bool gopher_generate_row_internal(char type, char *fields[5],
+static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		char *buffer, int buffer_length)
 {
 	char *nice_text;
@@ -371,11 +381,12 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 	bool alt_port = false;
 	char *username = NULL;
 
-	if (fields[3] && fields[3][0] &&  strcmp(fields[3], "70"))
+	if (fields[FIELD_PORT] && fields[FIELD_PORT][0]
+			&& strcmp(fields[FIELD_PORT], "70"))
 		alt_port = true;
 
 	/* escape html special characters */
-	nice_text = html_escape_string(fields[0]);
+	nice_text = html_escape_string(fields[FIELD_NAME]);
 
 	/* XXX: outputting \n generates better looking html code,
 	 * but currently screws up indentation due to a bug.
@@ -393,20 +404,20 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
 				"<span class=\"text\">%s</span></a>"HTML_LF
 				"<br/>"HTML_LF,
-				fields[2],
+				fields[FIELD_HOST],
 				alt_port ? ":" : "",
-				alt_port ? fields[3] : "",
-				type, fields[1], nice_text);
+				alt_port ? fields[FIELD_PORT] : "",
+				type, fields[FIELD_SELECTOR], nice_text);
 		break;
 	case GOPHER_TYPE_BINARY:
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
 				"<span class=\"binary\">%s</span></a>"HTML_LF
 				"<br/>"HTML_LF,
-				fields[2],
+				fields[FIELD_HOST],
 				alt_port ? ":" : "",
-				alt_port ? fields[3] : "",
-				type, fields[1], nice_text);
+				alt_port ? fields[FIELD_PORT] : "",
+				type, fields[FIELD_SELECTOR], nice_text);
 		break;
 	case GOPHER_TYPE_DIRECTORY:
 		/*
@@ -416,10 +427,10 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
 				"<span class=\"dir\">%s</span></a>"HTML_LF
 				"<br/>"HTML_LF,
-				fields[2],
+				fields[FIELD_HOST],
 				alt_port ? ":" : "",
-				alt_port ? fields[3] : "",
-				type, fields[1], nice_text);
+				alt_port ? fields[FIELD_PORT] : "",
+				type, fields[FIELD_SELECTOR], nice_text);
 		break;
 	case GOPHER_TYPE_ERROR:
 		error = snprintf(buffer, buffer_length,
@@ -439,10 +450,10 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 				"</label>"
 				"</span></form>"HTML_LF
 				"<br/>"HTML_LF,
-				fields[2],
+				fields[FIELD_HOST],
 				alt_port ? ":" : "",
-				alt_port ? fields[3] : "",
-				type, fields[1], nice_text);
+				alt_port ? fields[FIELD_PORT] : "",
+				type, fields[FIELD_SELECTOR], nice_text);
 		break;
 	case GOPHER_TYPE_TELNET:
 		/* telnet: links
@@ -450,9 +461,10 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 		 * -> gopher://78.80.30.202:23/8/ps3/new -> new@78.80.30.202
 		 */
 		alt_port = false;
-		if (fields[3] && fields[3][0] && strcmp(fields[3], "23"))
+		if (fields[FIELD_PORT] && fields[FIELD_PORT][0] &&
+				strcmp(fields[FIELD_PORT], "23"))
 			alt_port = true;
-		username = strrchr(fields[1], '/');
+		username = strrchr(fields[FIELD_SELECTOR], '/');
 		if (username)
 			username++;
 		error = snprintf(buffer, buffer_length,
@@ -461,9 +473,9 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 				"<br/>"HTML_LF,
 				username ? username : "",
 				username ? "@" : "",
-				fields[2],
+				fields[FIELD_HOST],
 				alt_port ? ":" : "",
-				alt_port ? fields[3] : "",
+				alt_port ? fields[FIELD_PORT] : "",
 				nice_text);
 		break;
 	case GOPHER_TYPE_TN3270:
@@ -473,9 +485,10 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 		 * note it wrongly uses 21 as default port though...
 		 */
 		alt_port = false;
-		if (fields[3] && fields[3][0] && strcmp(fields[3], "23"))
+		if (fields[FIELD_PORT] && fields[FIELD_PORT][0] &&
+				strcmp(fields[FIELD_PORT], "23"))
 			alt_port = true;
-		username = strrchr(fields[1], '/');
+		username = strrchr(fields[FIELD_SELECTOR], '/');
 		if (username)
 			username++;
 		error = snprintf(buffer, buffer_length,
@@ -484,9 +497,9 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 				"<br/>"HTML_LF,
 				username ? username : "",
 				username ? "@" : "",
-				fields[2],
+				fields[FIELD_HOST],
 				alt_port ? ":" : "",
-				alt_port ? fields[3] : "",
+				alt_port ? fields[FIELD_PORT] : "",
 				nice_text);
 		break;
 	case GOPHER_TYPE_GIF:
@@ -502,15 +515,15 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 					"</span>"
 					"</a>"
 					"<br/>"HTML_LF,
-					fields[2],
+					fields[FIELD_HOST],
 					alt_port ? ":" : "",
-					alt_port ? fields[3] : "",
-					type, fields[1],
+					alt_port ? fields[FIELD_PORT] : "",
+					type, fields[FIELD_SELECTOR],
 					nice_text,
-					fields[2],
+					fields[FIELD_HOST],
 					alt_port ? ":" : "",
-					alt_port ? fields[3] : "",
-					type, fields[1],
+					alt_port ? fields[FIELD_PORT] : "",
+					type, fields[FIELD_SELECTOR],
 					nice_text);
 			break;
 		}
@@ -519,17 +532,21 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
 				"<span class=\"img\">%s</span></a>"HTML_LF
 				"<br/>"HTML_LF,
-				fields[2],
+				fields[FIELD_HOST],
 				alt_port ? ":" : "",
-				alt_port ? fields[3] : "",
-				type, fields[1], nice_text);
+				alt_port ? fields[FIELD_PORT] : "",
+				type, fields[FIELD_SELECTOR], nice_text);
 		break;
 	case GOPHER_TYPE_HTML:
-		if (fields[1] && strncmp(fields[1], "URL:", 4) == 0)
-			redirect_url = fields[1] + 4;
+		if (fields[FIELD_SELECTOR] &&
+				strncmp(fields[FIELD_SELECTOR], "URL:", SLEN("URL:")) == 0)
+			redirect_url = fields[FIELD_SELECTOR] + SLEN("URL:");
+
 		/* cf. gopher://pineapple.vg/1 */
-		if (fields[1] && strncmp(fields[1], "/URL:", 5) == 0)
-			redirect_url = fields[1] + 5;
+		if (fields[FIELD_SELECTOR] &&
+				strncmp(fields[FIELD_SELECTOR], "/URL:", SLEN("/URL:")) == 0)
+			redirect_url = fields[FIELD_SELECTOR] + SLEN("/URL:");
+
 		if (redirect_url) {
 			error = snprintf(buffer, buffer_length,
 					"<a href=\"%s\">"HTML_LF
@@ -543,10 +560,10 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 					"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
 					"<span class=\"html\">%s</span></a>"HTML_LF
 					"<br/>"HTML_LF,
-					fields[2],
+					fields[FIELD_HOST],
 					alt_port ? ":" : "",
-					alt_port ? fields[3] : "",
-					type, fields[1], nice_text);
+					alt_port ? fields[FIELD_PORT] : "",
+					type, fields[FIELD_SELECTOR], nice_text);
 		}
 		break;
 	case GOPHER_TYPE_INFO:
@@ -560,10 +577,10 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
 				"<span class=\"unknown\">%s</span></a>"HTML_LF
 				"<br/>"HTML_LF,
-				fields[2],
+				fields[FIELD_HOST],
 				alt_port ? ":" : "",
-				alt_port ? fields[3] : "",
-				type, fields[1], nice_text);
+				alt_port ? fields[FIELD_PORT] : "",
+				type, fields[FIELD_SELECTOR], nice_text);
 		break;
 	}
 
@@ -596,7 +613,7 @@ static bool gopher_generate_row(const char **data, size_t *size,
 	char type = 0;
 	int field = 0;
 	/* name, selector, host, port, gopher+ flag */
-	char *fields[5] = { NULL, NULL, NULL, NULL, NULL };
+	char *fields[FIELD_COUNT] = { NULL, NULL, NULL, NULL, NULL };
 	const char *s = *data;
 	const char *p = *data;
 	int i;
@@ -621,7 +638,7 @@ static bool gopher_generate_row(const char **data, size_t *size,
 			if (sz < 1 || p[1] != '\n') {
 				LOG(("warning: CR without LF in gopher item '%c'\n", type));
 			}
-			if (field < 3 && type != '.') {
+			if (field < FIELD_PORT && type != '.') {
 				LOG(("warning: unterminated gopher item '%c'\n", type));
 			}
 			fields[field] = malloc(p - s + 1);
@@ -631,7 +648,7 @@ static bool gopher_generate_row(const char **data, size_t *size,
 				;/* XXX: signal end of page? For now we just ignore it. */
 			}
 			ok = gopher_generate_row_internal(type, fields, buffer, buffer_length);
-			for (i = 0; i < 5; i++) {
+			for (i = FIELD_NAME; i < FIELD_COUNT; i++) {
 				free(fields[i]);
 				fields[i] = NULL;
 			}
@@ -647,7 +664,7 @@ static bool gopher_generate_row(const char **data, size_t *size,
 				*size = sz;
 			return ok;
 		case '\x09':
-			if (field >= 4) {
+			if (field >= FIELD_GPFLAG) {
 				LOG(("warning: extra tab in gopher item '%c'\n", type));
 				break;
 			}
