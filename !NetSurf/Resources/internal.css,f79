@@ -213,6 +213,9 @@ body#gopher span {
 	font-family: Courier, monospace;
 	white-space: pre; }
 
+body#gopher span.error {
+	color: #f00; }
+
 body#gopher span.dir {
 	background-image: url('resource:Icons/directory.png');
 	background-repeat: no-repeat;
