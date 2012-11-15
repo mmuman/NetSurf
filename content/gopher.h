@@ -61,7 +61,7 @@ typedef enum {
 	GOPHER_TYPE_PDF		= 'P',	/**< PDF file */
 	GOPHER_TYPE_BITMAP	= ':',	/**< Bitmap image (Gopher+) */
 	GOPHER_TYPE_MOVIE	= ';',	/**< Movie (Gopher+) */
-	GOPHER_TYPE_SOUND	= ';',	/**< Sound (Gopher+) */
+	GOPHER_TYPE_SOUND	= '<',	/**< Sound (Gopher+) */
 	GOPHER_TYPE_CALENDAR	= 'c',	/**< Calendar */
 	GOPHER_TYPE_EVENT	= 'e',	/**< Event */
 	GOPHER_TYPE_MBOX	= 'm',	/**< mbox file */
