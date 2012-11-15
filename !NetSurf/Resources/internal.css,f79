@@ -191,3 +191,40 @@ table.imagecachelist td {
 	border: 1px solid #000;
 }
 
+
+/* 
+ * gopher listing style 
+ */
+
+body#gopher {
+	/* margin: 10px;*/
+	font-size: 100%;
+	padding-bottom: 2em; }
+
+body#gopher h1 {
+	padding: 5mm;
+	margin: 0;
+	border-bottom: 2px solid #777; }
+
+/* XXX: white-space: pre-wrap would be better but is currently buggy */
+body#gopher span {
+	margin-left: 1em;
+	padding-left: 2em;
+	font-family: Courier, monospace;
+	white-space: pre; }
+
+body#gopher span.dir {
+	background-image: url('resource:Icons/directory.png');
+	background-repeat: no-repeat;
+	background-position: bottom left; }
+
+body#gopher span.text {
+	background-image: url('resource:Icons/content.png'); 
+	background-repeat: no-repeat;
+	background-position: bottom left; }
+
+body#gopher span.query {
+	background-image: url('resource:Icons/search.png'); 
+	background-repeat: no-repeat;
+	background-position: bottom left; }
+
