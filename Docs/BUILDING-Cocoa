@@ -20,6 +20,16 @@
 
   In both cases the actual build process is controlled by the Makefile.
 
+  Gopher support requires a recent libcurl from MacPorts since the one Apple
+  ships lacks the gopher handler. Building with MacPorts breaks the self-
+  contained nature of the .app bundle though. Install libcurl with MacPorts:
+
+     $ sudo port install curl
+
+  Then build with:
+
+     $ make TARGET=cocoa WITH_MACPORTS=1
+
   Obtaining NetSurf's build dependencies
 ========================================
 
