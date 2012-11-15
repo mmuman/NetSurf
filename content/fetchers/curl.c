@@ -1141,6 +1141,7 @@ size_t fetch_curl_data(char *data, size_t size, size_t nmemb,
 	}
 
 	/* gopher data receives special treatment */
+	/* TODO: strip the last line of text file when single dot. */
 	if (f->gopher && gopher_need_generate(f->gopher->type)) {
 		return gopher_fetch_data(f->gopher, data, size * nmemb);
 	}
