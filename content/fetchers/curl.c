@@ -1099,32 +1099,19 @@ size_t fetch_curl_data(char *data, size_t size, size_t nmemb,
 	CURLcode code;
 	fetch_msg msg;
 
-	/* gopher data receives special treatment */
-	if (f->gopher && gopher_need_generate(f->gopher->type)) {
-		/* We didn't receive anything yet, check for error.
-		 * type 3 items report an error
-		 */
-		if (!f->http_code) {
-			if (data[0] == GOPHER_TYPE_ERROR) {
-				/* TODO: try to guess better from the string ?
-				 * like "3 '/bcd' doesn't exist!"
-				 * TODO: what about other file types ?
-				 */
-				f->http_code = 404;
-			} else {
-				f->http_code = 200;
-			}
-			fetch_set_http_code(f->fetch_handle, f->http_code);
-		}
-	}
-
 	/* ensure we only have to get this information once */
 	if (!f->http_code)
 	{
-		code = curl_easy_getinfo(f->curl_handle, CURLINFO_HTTP_CODE,
+		/* gopher data receives special treatment */
+		if (f->gopher)
+			f->http_code = gopher_get_http_code(f->gopher, data, size * nmemb);
+
+		if (!f->http_code) {
+			code = curl_easy_getinfo(f->curl_handle, CURLINFO_HTTP_CODE,
 					 &f->http_code);
+			assert(code == CURLE_OK);
+		}
 		fetch_set_http_code(f->fetch_handle, f->http_code);
-		assert(code == CURLE_OK);
 	}
 
 	/* ignore body if this is a 401 reply by skipping it and reset

@@ -83,6 +83,8 @@ void gopher_state_free(struct gopher_state *s);
 
 size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size);
 
+long gopher_get_http_code(struct gopher_state *s, char *data, size_t size);
+
 const char *gopher_type_to_mime(gopher_item_type type);
 bool gopher_need_generate(gopher_item_type type);
 

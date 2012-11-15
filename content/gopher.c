@@ -227,6 +227,32 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 }
 
 /**
+ * Return an HTTP code for the gopher connection to the cURL fetcher.
+ *
+ * \return	HTTP code
+ */
+
+long gopher_get_http_code(struct gopher_state *s, char *data, size_t size)
+{
+	if (gopher_need_generate(s->type)) {
+		/* We didn't receive anything yet, check for error.
+		 * type '3' items report an error
+		 */
+		/*LOG(("data[0] == 0x%02x '%c'", data[0], data[0]));*/
+		if (size > 0 && data[0] == GOPHER_TYPE_ERROR) {
+			/* TODO: try to guess better from the string ?
+			 * like "3 '/bcd' doesn't exist!"
+			 * XXX: it might not always be a 404
+			 */
+			return 404;
+		} else {
+			return 200;
+		}
+	} else
+		return 200;	/* TODO: handle other types better */
+}
+
+/**
  * Escape a string using HTML entities.
  *
  * \return	malloc()ed string.
