@@ -429,6 +429,9 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 				type, fields[FIELD_SELECTOR], nice_text);
 		break;
 	case GOPHER_TYPE_BINARY:
+	case GOPHER_TYPE_BINHEX:
+	case GOPHER_TYPE_BINARCHIVE:
+	case GOPHER_TYPE_UUENCODED:
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
 				"<span class=\"binary\">%s</span></a>"HTML_LF
@@ -629,7 +632,36 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 				alt_port ? fields[FIELD_PORT] : "",
 				type, fields[FIELD_SELECTOR]);
 		break;
+	case GOPHER_TYPE_PDF:
+	case GOPHER_TYPE_PDF_ALT:
+		/* generic case for known-to-work items */
+		error = snprintf(buffer, buffer_length,
+				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
+				"<span class=\"other\">%s</span></a>"HTML_LF
+				"<br/>"HTML_LF,
+				fields[FIELD_HOST],
+				alt_port ? ":" : "",
+				alt_port ? fields[FIELD_PORT] : "",
+				type, fields[FIELD_SELECTOR], nice_text);
+		break;
+	case GOPHER_TYPE_MOVIE:
+		error = snprintf(buffer, buffer_length,
+				"<a href=\"gopher://%s%s%s/%c%s\">"
+				"<span class=\"video\">%s</span></a>"
+				"<video src=\"gopher://%s%s%s/%c%s\" controls=\"controls\">"
+				"<span>[player]</span></video>"
+				"<br/>"HTML_LF,
+				fields[FIELD_HOST],
+				alt_port ? ":" : "",
+				alt_port ? fields[FIELD_PORT] : "",
+				type, fields[FIELD_SELECTOR], nice_text,
+				fields[FIELD_HOST],
+				alt_port ? ":" : "",
+				alt_port ? fields[FIELD_PORT] : "",
+				type, fields[FIELD_SELECTOR]);
+		break;
 	default:
+		/* yet to be tested items, please report when you see them! */
 		LOG(("warning: unknown gopher item type 0x%02x '%c'", type, type));
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
