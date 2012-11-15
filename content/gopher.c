@@ -502,6 +502,24 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 				alt_port ? fields[FIELD_PORT] : "",
 				nice_text);
 		break;
+	case GOPHER_TYPE_CSO_SEARCH:
+		/* CSO search.
+		 * At least Lynx supports a cso:// URI scheme:
+		 * http://lynx.isc.org/lynx2.8.5/lynx2-8-5/lynx_help/lynx_url_support.html
+		 */
+		alt_port = false;
+		if (fields[FIELD_PORT] && fields[FIELD_PORT][0] &&
+				strcmp(fields[FIELD_PORT], "105"))
+			alt_port = true;
+		error = snprintf(buffer, buffer_length,
+				"<a href=\"cso://%s%s%s\">"HTML_LF
+				"<span class=\"cso\">%s</span></a>"HTML_LF
+				"<br/>"HTML_LF,
+				fields[FIELD_HOST],
+				alt_port ? ":" : "",
+				alt_port ? fields[FIELD_PORT] : "",
+				nice_text);
+		break;
 	case GOPHER_TYPE_GIF:
 	case GOPHER_TYPE_IMAGE:
 	case GOPHER_TYPE_PNG:
