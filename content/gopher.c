@@ -566,9 +566,16 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		}
 		break;
 	case GOPHER_TYPE_INFO:
-		error = snprintf(buffer, buffer_length,
-				"<span class=\"info\">%s</span><br/>"HTML_LF,
-				nice_text);
+		if ((fields[FIELD_SELECTOR] &&
+				strcmp(fields[FIELD_SELECTOR], "TITLE")) == 0) {
+			error = snprintf(buffer, buffer_length,
+					"<h2>%s</h2><br/>"HTML_LF,
+					nice_text);
+		} else {
+			error = snprintf(buffer, buffer_length,
+					"<span class=\"info\">%s</span><br/>"HTML_LF,
+					nice_text);
+		}
 		break;
 	case GOPHER_TYPE_AUDIO:
 		error = snprintf(buffer, buffer_length,
