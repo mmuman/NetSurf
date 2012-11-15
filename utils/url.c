@@ -671,6 +671,38 @@ url_func_result url_fragment(const char *url, char **result)
 }
 
 /**
+ * Extract the gopher document type from an URL
+ *
+ * \param url     an absolute URL
+ * \param result  pointer to buffer to hold result
+ * \return URL_FUNC_OK on success
+ */
+
+url_func_result url_gopher_type(const char *url, char *result)
+{
+	url_func_result status;
+	struct url_components components;
+
+	assert(url);
+
+	status = url_get_components(url, &components);
+	if (status == URL_FUNC_OK) {
+		if (!components.path) {
+			status = URL_FUNC_FAILED;
+		} else {
+			if (strlen(components.path) < 2)
+				*result = '1';
+			else if (components.path[0] == '/')
+				*result = components.path[1];
+			else
+				status = URL_FUNC_FAILED;
+		}
+	}
+	url_destroy_components(&components);
+	return status;
+}
+
+/**
  * Attempt to find a nice filename for a URL.
  *
  * \param  url	   an absolute URL

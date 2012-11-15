@@ -59,6 +59,7 @@ url_func_result url_plq(const char *url, char **result);
 url_func_result url_path(const char *url, char **result);
 url_func_result url_leafname(const char *url, char **result);
 url_func_result url_fragment(const char *url, char **result);
+url_func_result url_gopher_type(const char *url, char *result);
 url_func_result url_compare(const char *url1, const char *url2,
 		bool nofrag, bool *result);
 
