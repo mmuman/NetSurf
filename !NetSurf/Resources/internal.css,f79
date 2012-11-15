@@ -231,3 +231,9 @@ body#gopher span.query {
 	background-repeat: no-repeat;
 	background-position: bottom left; }
 
+body#gopher span.img img {
+	display: block;
+	margin-left:auto;
+	margin-right:auto; }
+
+

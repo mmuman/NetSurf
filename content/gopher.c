@@ -544,7 +544,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		if (nsoption_bool(gopher_inline_images)) {
 			error = snprintf(buffer, buffer_length,
 					"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
-					"<span class=\"img\">%s "HTML_LF /* </span><br/> */
+					"<span class=\"img\">%s"HTML_LF /* </span><br/> */
 					/*"<span class=\"img\" >"HTML_LF*/
 					"<img src=\"gopher://%s%s%s/%c%s\" alt=\"%s\"/>"HTML_LF
 					"</span>"
