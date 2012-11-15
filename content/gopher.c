@@ -66,6 +66,7 @@ static struct {
 	{ GOPHER_TYPE_GIF, "image/gif" },
 	{ GOPHER_TYPE_HTML, "text/html" },
 	/* those are not standardized */
+	{ GOPHER_TYPE_PDF_ALT, "application/pdf" },
 	{ GOPHER_TYPE_PDF, "application/pdf" },
 	{ GOPHER_TYPE_PNG, "image/png"},
 	{ 0, NULL }
@@ -504,6 +505,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 	case GOPHER_TYPE_GIF:
 	case GOPHER_TYPE_IMAGE:
 	case GOPHER_TYPE_PNG:
+	case GOPHER_TYPE_BITMAP:
 		/* quite dangerous, cf. gopher://namcub.accela-labs.com/1/pics */
 		if (nsoption_bool(gopher_inline_images)) {
 			error = snprintf(buffer, buffer_length,
@@ -578,6 +580,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		}
 		break;
 	case GOPHER_TYPE_AUDIO:
+	case GOPHER_TYPE_SOUND:
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
 				"<span class=\"audio\">%s</span></a>"HTML_LF

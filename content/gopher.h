@@ -51,11 +51,18 @@ typedef enum {
 	GOPHER_TYPE_INFO	= 'i',	/* information text */
 	GOPHER_TYPE_AUDIO	= 's',	/* audio (wav?) */
 	/* not standardized, some servers use them */
-	GOPHER_TYPE_PDF		= 'd',	/* seems to be only for PDF files */
+	GOPHER_TYPE_PDF_ALT	= 'd',	/* seems to be only for PDF files */
 	GOPHER_TYPE_PNG		= 'p',	/* cf. gopher://namcub.accelera-labs.com/1/pics */
-	GOPHER_TYPE_MIME	= 'M'	/* multipart/mixed MIME data */
+	GOPHER_TYPE_MIME	= 'M',	/* multipart/mixed MIME data */
 	/* cf. http://www.pms.ifi.lmu.de/mitarbeiter/ohlbach/multimedia/IT/IBMtutorial/3376c61.html */
 	/* cf. http://nofixedpoint.motd.org/2011/02/22/an-introduction-to-the-gopher-protocol/ */
+	GOPHER_TYPE_PDF		= 'P',	/* PDF files */
+	GOPHER_TYPE_BITMAP	= ':',	/* Bitmap images (Gopher+) */
+	GOPHER_TYPE_MOVIE	= ';',	/* Movies (Gopher+) */
+	GOPHER_TYPE_SOUND	= ';',	/* Sound (Gopher+) */
+	GOPHER_TYPE_CALENDAR	= 'c',	/* Calendar */
+	GOPHER_TYPE_EVENT	= 'e',	/* Event */
+	GOPHER_TYPE_MBOX	= 'm',	/* mbox file */
 } gopher_item_type;
 
 struct gopher_state {
