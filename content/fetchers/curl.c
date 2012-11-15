@@ -59,6 +59,7 @@
 #include "content/fetch.h"
 #include "content/fetchers.h"
 #include "content/fetchers/curl.h"
+#include "content/gopher.h"
 #include "content/urldb.h"
 
 /** maximum number of progress notifications per second */
@@ -95,6 +96,7 @@ struct curl_fetch_info {
 	uint64_t last_progress_update;	/**< Time of last progress update */
 	int cert_depth; /**< deepest certificate in use */
 	struct cert_info cert_data[MAX_CERTS];	/**< HTTPS certificate data */
+	struct gopher_state *gopher;	/**< gopher-specific state */
 };
 
 /** curl handle cache entry */
@@ -324,6 +326,7 @@ fetch_curl_setup(struct fetch *parent_fetch,
 		fetch->post_multipart = fetch_curl_post_convert(post_multipart);
 	}
 	fetch->last_progress_update = 0;
+	fetch->gopher = NULL;
 
 	/* TLS defaults */
 	memset(fetch->cert_data, 0, sizeof(fetch->cert_data));
@@ -390,6 +393,55 @@ failed:
 	curl_slist_free_all(fetch->headers);
 	free(fetch);
 	return NULL;
+}
+
+
+void * fetch_curl_setup_gopher(struct fetch *parent_fetch, nsurl *url,
+		 bool only_2xx, bool downgrade_tls, const char *post_urlenc,
+		 const struct fetch_multipart_data *post_multipart,
+		 const char **headers)
+{
+	struct curl_fetch_info *f;
+	const char *mime;
+	char type;
+
+	f = fetch_curl_setup(parent_fetch, url, only_2xx, downgrade_tls,
+		post_urlenc, post_multipart, headers);
+
+	f->gopher = gopher_state_create(f->url, f->fetch_handle);
+	if (f->gopher == NULL) {
+		fetch_curl_free(f);
+		return NULL;
+	}
+
+	if (url_gopher_type(nsurl_access(url), &f->gopher->type) != URL_FUNC_OK
+			|| f->gopher->type == GOPHER_TYPE_NONE) {
+		f->http_code = 404;
+		fetch_set_http_code(f->fetch_handle, f->http_code);
+		LOG(("fetch %p, gopher error for '%s'", f, nsurl_access(url)));
+	}
+
+	mime = gopher_type_to_mime(f->gopher->type);
+	/* TODO: add a better API,
+	 * fetch_filetype() is wrongly assuming unknown files to be HTML.
+	 */
+	if (mime == NULL)
+		mime = fetch_filetype(nsurl_access(url));
+
+	if (mime) {
+		char s[80];
+		fetch_msg msg;
+
+		LOG(("fetch %p, gopher mime is '%s'", f, mime));
+		snprintf(s, sizeof s, "Content-type: %s\r\n", mime);
+		s[sizeof s - 1] = 0;
+		msg.type = FETCH_HEADER;
+		msg.data.header_or_data.buf = (const uint8_t *) s;
+		msg.data.header_or_data.len = strlen(s);
+		fetch_send_callback(&msg, f->fetch_handle);
+	}
+
+	return f;
 }
 
 
@@ -821,6 +873,9 @@ static void fetch_curl_free(void *vf)
 		}
 	}
 
+	if (f->gopher)
+		gopher_state_free(f->gopher);
+
 	free(f);
 }
 
@@ -1026,6 +1081,9 @@ static void fetch_curl_done(CURL *curl_handle, CURLcode result)
 	if ((abort_fetch == false) &&
 	    (result == CURLE_OK ||
 	     ((result == CURLE_WRITE_ERROR) && (f->stopped == false)))) {
+		/* handle incoming gopher data */
+		if (f->gopher)
+			gopher_fetch_data(f->gopher, NULL, 0);
 		/* fetch completed normally or the server fed us a junk gzip
 		 * stream (usually in the form of garbage at the end of the
 		 * stream). Curl will have fed us all but the last chunk of
@@ -1254,6 +1312,25 @@ static size_t fetch_curl_data(char *data, size_t size, size_t nmemb, void *_f)
 	CURLcode code;
 	fetch_msg msg;
 
+	/* gopher data receives special treatment */
+	if (f->gopher && gopher_need_generate(f->gopher->type)) {
+		/* We didn't receive anything yet, check for error.
+		 * type 3 items report an error
+		 */
+		if (!f->http_code) {
+			if (data[0] == GOPHER_TYPE_ERROR) {
+				/* TODO: try to guess better from the string ?
+				 * like "3 '/bcd' doesn't exist!"
+				 * TODO: what about other file types ?
+				 */
+				f->http_code = 404;
+			} else {
+				f->http_code = 200;
+			}
+			fetch_set_http_code(f->fetch_handle, f->http_code);
+		}
+	}
+
 	/* ensure we only have to get this information once */
 	if (!f->http_code) {
 		code = curl_easy_getinfo(f->curl_handle, CURLINFO_HTTP_CODE,
@@ -1273,6 +1350,12 @@ static size_t fetch_curl_data(char *data, size_t size, size_t nmemb, void *_f)
 	if (f->abort || (!f->had_headers && fetch_curl_process_headers(f))) {
 		f->stopped = true;
 		return 0;
+	}
+
+	/* gopher data receives special treatment */
+	/* TODO: strip the last line of text file when single dot. */
+	if (f->gopher && gopher_need_generate(f->gopher->type)) {
+		return gopher_fetch_data(f->gopher, data, size * nmemb);
 	}
 
 	/* send data to the caller */
@@ -1399,7 +1482,7 @@ nserror fetch_curl_register(void)
 	curl_version_info_data *data;
 	int i;
 	lwc_string *scheme;
-	const struct fetcher_operation_table fetcher_ops = {
+	/*const*/ struct fetcher_operation_table fetcher_ops = {
 		.initialise = fetch_curl_initialise,
 		.acceptable = fetch_curl_can_fetch,
 		.setup = fetch_curl_setup,
@@ -1509,6 +1592,11 @@ nserror fetch_curl_register(void)
 
 		} else if (strcmp(data->protocols[i], "https") == 0) {
 			scheme = lwc_string_ref(corestring_lwc_https);
+
+		} else if (strcmp(data->protocols[i], "gopher") == 0) {
+			scheme = lwc_string_ref(corestring_lwc_gopher);
+			/* We use a different setup hook */
+			fetcher_ops.setup = fetch_curl_setup_gopher;
 
 		} else {
 			/* Ignore non-http(s) protocols */

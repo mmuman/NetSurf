@@ -62,6 +62,7 @@ extern lwc_string *corestring_lwc_filename;
 extern lwc_string *corestring_lwc_font;
 extern lwc_string *corestring_lwc_frame;
 extern lwc_string *corestring_lwc_frameset;
+extern lwc_string *corestring_lwc_gopher;
 extern lwc_string *corestring_lwc_h1;
 extern lwc_string *corestring_lwc_h2;
 extern lwc_string *corestring_lwc_h3;

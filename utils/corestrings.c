@@ -53,6 +53,7 @@ lwc_string *corestring_lwc_filename;
 lwc_string *corestring_lwc_font;
 lwc_string *corestring_lwc_frame;
 lwc_string *corestring_lwc_frameset;
+lwc_string *corestring_lwc_gopher;
 lwc_string *corestring_lwc_h1;
 lwc_string *corestring_lwc_h2;
 lwc_string *corestring_lwc_h3;
@@ -325,6 +326,7 @@ void corestrings_fini(void)
 	CSS_LWC_STRING_UNREF(font);
 	CSS_LWC_STRING_UNREF(frame);
 	CSS_LWC_STRING_UNREF(frameset);
+	CSS_LWC_STRING_UNREF(gopher);
 	CSS_LWC_STRING_UNREF(h1);
 	CSS_LWC_STRING_UNREF(h2);
 	CSS_LWC_STRING_UNREF(h3);
@@ -627,6 +629,7 @@ nserror corestrings_init(void)
 	CSS_LWC_STRING_INTERN(font);
 	CSS_LWC_STRING_INTERN(frame);
 	CSS_LWC_STRING_INTERN(frameset);
+	CSS_LWC_STRING_INTERN(gopher);
 	CSS_LWC_STRING_INTERN(h1);
 	CSS_LWC_STRING_INTERN(h2);
 	CSS_LWC_STRING_INTERN(h3);
