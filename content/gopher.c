@@ -771,6 +771,11 @@ static bool gopher_generate_row(const char **data, size_t *size,
 		}
 	}
 
+	/* unfinished item, cleanup */
+	for (i = FIELD_NAME; i < FIELD_COUNT; i++) {
+		free(fields[i]);
+		fields[i] = NULL;
+	}
 	return false;
 }
 
