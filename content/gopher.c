@@ -347,7 +347,8 @@ static bool gopher_generate_top(char *buffer, int buffer_length)
 			 * "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
 			 */
 			"<link rel=\"stylesheet\" title=\"Standard\" "
-				"type=\"text/css\" href=\"resource:internal.css\">\n");
+				"type=\"text/css\" href=\"resource:internal.css\">\n"
+			"<link rel=\"icon\" type=\"image/png\" href=\"resource:icons/directory.png\">\n");
 
 	if (error < 0 || error >= buffer_length)
 		/* Error or buffer too small */
