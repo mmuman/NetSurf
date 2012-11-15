@@ -81,6 +81,20 @@ void gopher_state_free(struct gopher_state *s)
 	free(s);
 }
 
+/**
+ * Handle incoming data from the fetcher and convert it to HTML.
+ *
+ * \return  the amount of consumed data
+ *
+ * This calls of a series of functions.  To generate a complete page,
+ * call the following functions in order:
+ *
+ *     gopher_generate_top()
+ *     gopher_generate_title()
+ *     gopher_generate_row()           -- call 'n' times for 'n' rows
+ *     gopher_generate_bottom()
+ *
+ */
 
 size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 {
@@ -108,6 +122,11 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 		return 0;
 	}
 
+	/* XXX: should we loop there until remaining is 0 ? Seems not needed. */
+	/* XXX: note there is a possibility of endless loop if a line is larger
+	 * than the input buffer...
+	 */
+
 	fprintf(stderr, "iteration: cached %d remaining %d\n", s->cached, remaining);
 
 	p = s->input;
@@ -132,6 +151,9 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 			msg.data.header_or_data.len = strlen(buffer);
 			fetch_send_callback(&msg, s->fetch_handle);
 		}
+		/* XXX: should we implement
+		 * gopher://gophernicus.org/0/doc/gopher/gopher-title-resource.txt ?
+		 */
 		title = gen_nice_title(nsurl_access(s->url));
 		if (gopher_generate_title(title, buffer, sizeof(buffer)))
 		{
@@ -163,7 +185,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 		memmove(s->input, s->input + s->cached - left, left);
 	s->cached = left;
 
-	return size /* - left*/;
+	return size;
 
 }
 
@@ -218,34 +240,10 @@ static char *gen_nice_title(const char *path)
 	int title_length;
 
 	/* Convert path for display */
-	nice_path = malloc(strlen(path) * SLEN("&amp;") + 1);
+	nice_path = html_escape_string(path);
 	if (nice_path == NULL) {
 		return NULL;
 	}
-
-	/* Escape special HTML characters */
-	for (cnv = nice_path, tmp = path; *tmp != '\0'; tmp++) {
-		if (*tmp == '<') {
-			*cnv++ = '&';
-			*cnv++ = 'l';
-			*cnv++ = 't';
-			*cnv++ = ';';
-		} else if (*tmp == '>') {
-			*cnv++ = '&';
-			*cnv++ = 'g';
-			*cnv++ = 't';
-			*cnv++ = ';';
-		} else if (*tmp == '&') {
-			*cnv++ = '&';
-			*cnv++ = 'a';
-			*cnv++ = 'm';
-			*cnv++ = 'p';
-			*cnv++ = ';';
-		} else {
-			*cnv++ = *tmp;
-		}
-	}
-	*cnv = '\0';
 
 	/* Construct a localised title string */
 	title_length = (cnv - nice_path) + strlen(messages_get("FileIndex"));
@@ -269,7 +267,6 @@ static char *gen_nice_title(const char *path)
  * Convert the gopher item type to mime type
  *
  * \return  MIME type string
- *
  */
 
 const char *gopher_type_to_mime(char type)
@@ -306,14 +303,6 @@ bool gopher_need_generate(char type)
  * Generates the top part of an HTML directory listing page
  *
  * \return  true iff buffer filled without error
- *
- * This is part of a series of functions.  To generate a complete page,
- * call the following functions in order:
- *
- *     gopher_generate_top()
- *     gopher_generate_title()
- *     gopher_generate_row()           -- call 'n' times for 'n' rows
- *     gopher_generate_bottom()
  */
 
 static bool gopher_generate_top(char *buffer, int buffer_length)
@@ -346,14 +335,6 @@ static bool gopher_generate_top(char *buffer, int buffer_length)
  * \param  buffer	  buffer to fill with generated HTML
  * \param  buffer_length  maximum size of buffer
  * \return  true iff buffer filled without error
- *
- * This is part of a series of functions.  To generate a complete page,
- * call the following functions in order:
- *
- *     gopher_generate_top()
- *     gopher_generate_title()
- *     gopher_generate_row()           -- call 'n' times for 'n' rows
- *     gopher_generate_bottom()
  */
 
 static bool gopher_generate_title(const char *title, char *buffer, int buffer_length)
@@ -585,14 +566,6 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
  * \param  buffer	  buffer to fill with generated HTML
  * \param  buffer_length  maximum size of buffer
  * \return  true iff buffer filled without error
- *
- * This is part of a series of functions.  To generate a complete page,
- * call the following functions in order:
- *
- *     gopher_generate_top()
- *     gopher_generate_title()
- *     gopher_generate_row()           -- call 'n' times for 'n' rows
- *     gopher_generate_bottom()
  */
 
 static bool gopher_generate_row(const char **data, size_t *size,
@@ -676,14 +649,6 @@ static bool gopher_generate_row(const char **data, size_t *size,
  * Generates the bottom part of an HTML directory listing page
  *
  * \return  Bottom of directory listing HTML
- *
- * This is part of a series of functions.  To generate a complete page,
- * call the following functions in order:
- *
- *     gopher_generate_top()
- *     gopher_generate_title()
- *     gopher_generate_row()           -- call 'n' times for 'n' rows
- *     gopher_generate_bottom()
  */
 
 static bool gopher_generate_bottom(char *buffer, int buffer_length)
