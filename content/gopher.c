@@ -109,11 +109,11 @@ void gopher_state_free(struct gopher_state *s)
 size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 {
 	char buffer[1024];
-	char *p = data;
+	const char *p = data;
 	size_t remaining = size;
 	size_t left;
 	fetch_msg msg;
-	fprintf(stderr, "%s(,, %d)\n", __FUNCTION__, size);
+	/*fprintf(stderr, "%s(,, %d)\n", __FUNCTION__, size);*/
 
 	/* actually called when done getting it all */
 	if (size == 0)
@@ -137,7 +137,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 	 * than the input buffer...
 	 */
 
-	fprintf(stderr, "iteration: cached %d remaining %d\n", s->cached, remaining);
+	/*fprintf(stderr, "iteration: cached %d remaining %d\n", s->cached, remaining);*/
 
 	p = s->input;
 	left = MIN(sizeof(s->input) - s->cached, remaining);
@@ -147,7 +147,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 	s->cached += left;
 	left = s->cached;
 
-	fprintf(stderr, "copied: cached %d remaining %d\n", s->cached, remaining);
+	/*fprintf(stderr, "copied: cached %d remaining %d\n", s->cached, remaining);*/
 
 	if (!s->head_done)
 	{
@@ -180,7 +180,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 
 	while (gopher_generate_row(&p, &left, buffer, sizeof(buffer)))
 	{
-		//fprintf(stderr, "done row, left %d\n", left);
+		/*fprintf(stderr, "done row, left %d\n", left);*/
 		/* send data to the caller */
 		/*LOG(("FETCH_DATA"));*/
 		msg.type = FETCH_DATA;
@@ -188,7 +188,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 		msg.data.header_or_data.len = strlen(buffer);
 		fetch_send_callback(&msg, s->fetch_handle);
 	}
-	fprintf(stderr, "last row, left %d\n", left);
+	/*fprintf(stderr, "last row, left %d\n", left);*/
 
 	/* move the remainder to the beginning of the buffer */
 	if (left)
@@ -200,9 +200,10 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 }
 
 
-static char *html_escape_string(char *str)
+static char *html_escape_string(const char *str)
 {
-	char *nice_str, *cnv, *tmp;
+	char *nice_str, *cnv;
+	const char *tmp;
 
 	if (str == NULL) {
 		return NULL;
@@ -244,7 +245,6 @@ static char *html_escape_string(char *str)
 
 static char *gen_nice_title(const char *path)
 {
-	const char *tmp;
 	char *nice_path;
 	char *title;
 	int title_length;
@@ -279,7 +279,7 @@ static char *gen_nice_title(const char *path)
  * \return  MIME type string
  */
 
-const char *gopher_type_to_mime(char type)
+const char *gopher_type_to_mime(gopher_item_type type)
 {
 	int i;
 
@@ -297,11 +297,11 @@ const char *gopher_type_to_mime(char type)
  *
  */
 
-bool gopher_need_generate(char type)
+bool gopher_need_generate(gopher_item_type type)
 {
 	switch (type) {
-	case '1':
-	case '7':
+	case GOPHER_TYPE_DIRECTORY:
+	case GOPHER_TYPE_QUERY:
 		return true;
 	default:
 		return false;
@@ -376,7 +376,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 {
 	char *nice_text;
 	char *redirect_url = NULL;
-	int error;
+	int error = 0;
 	bool alt_port = false;
 	char *username = NULL;
 
@@ -509,7 +509,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 			error = snprintf(buffer, buffer_length,
 					"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
 					"<span class=\"img\">%s "HTML_LF /* </span><br/> */
-					//"<span class=\"img\" >"HTML_LF
+					/*"<span class=\"img\" >"HTML_LF*/
 					"<img src=\"gopher://%s%s%s/%c%s\" alt=\"%s\"/>"HTML_LF
 					"</span>"
 					"</a>"
@@ -648,7 +648,7 @@ static bool gopher_generate_row(const char **data, size_t *size,
 			if (field > 0) {
 				LOG(("warning: unterminated gopher item '%c'\n", type));
 			}
-			//FALLTHROUGH
+			/* FALLTHROUGH */
 		case '\r':
 			if (sz < 1 || p[1] != '\n') {
 				LOG(("warning: CR without LF in gopher item '%c'\n", type));

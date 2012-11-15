@@ -52,7 +52,10 @@ typedef enum {
 	GOPHER_TYPE_AUDIO	= 's',	/* audio (wav?) */
 	/* not standardized, some servers use them */
 	GOPHER_TYPE_PDF		= 'd',	/* seems to be only for PDF files */
-	GOPHER_TYPE_PNG		= 'p'	/* cf. gopher://namcub.accelera-labs.com/1/pics */
+	GOPHER_TYPE_PNG		= 'p',	/* cf. gopher://namcub.accelera-labs.com/1/pics */
+	GOPHER_TYPE_MIME	= 'M'	/* multipart/mixed MIME data */
+	/* cf. http://www.pms.ifi.lmu.de/mitarbeiter/ohlbach/multimedia/IT/IBMtutorial/3376c61.html */
+	/* cf. http://nofixedpoint.motd.org/2011/02/22/an-introduction-to-the-gopher-protocol/ */
 } gopher_item_type;
 
 struct gopher_state {
@@ -70,8 +73,8 @@ void gopher_state_free(struct gopher_state *s);
 
 size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size);
 
-const char *gopher_type_to_mime(char type);
-bool gopher_need_generate(char type);
+const char *gopher_type_to_mime(gopher_item_type type);
+bool gopher_need_generate(gopher_item_type type);
 
 
 #endif
