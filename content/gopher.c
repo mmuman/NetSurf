@@ -570,6 +570,22 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 				"<span class=\"info\">%s</span><br/>"HTML_LF,
 				nice_text);
 		break;
+	case GOPHER_TYPE_AUDIO:
+		error = snprintf(buffer, buffer_length,
+				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
+				"<span class=\"audio\">%s</span></a>"HTML_LF
+				"<audio src=\"gopher://%s%s%s/%c%s\" controls=\"controls\">"
+				"<span>[player]</span></audio>"HTML_LF
+				"<br/>"HTML_LF,
+				fields[FIELD_HOST],
+				alt_port ? ":" : "",
+				alt_port ? fields[FIELD_PORT] : "",
+				type, fields[FIELD_SELECTOR], nice_text,
+				fields[FIELD_HOST],
+				alt_port ? ":" : "",
+				alt_port ? fields[FIELD_PORT] : "",
+				type, fields[FIELD_SELECTOR]);
+		break;
 	default:
 		LOG(("warning: unknown gopher item type 0x%02x '%c'\n", type, type));
 		error = snprintf(buffer, buffer_length,
