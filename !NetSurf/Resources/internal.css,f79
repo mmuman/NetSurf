@@ -216,6 +216,9 @@ body#gopher span {
 body#gopher span.error {
 	color: #f00; }
 
+body#gopher span.unknown {
+	color: #800; }
+
 body#gopher span.dir {
 	background-image: url('resource:icons/directory.png');
 	background-repeat: no-repeat;
