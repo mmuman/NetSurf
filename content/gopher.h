@@ -74,7 +74,7 @@ struct gopher_state {
 	struct fetch *fetch_handle;	/**< Copy of the fetch handle */
 	bool head_done;	/**< We already sent the <head> part */
 	size_t cached;	/**< Amount of cached data in the input buffer */
-	char input[2048];	/**< input buffer */
+	char *input;	/**< input buffer */
 	
 };
 
