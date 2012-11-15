@@ -90,6 +90,7 @@ struct gopher_state *gopher_state_create(nsurl *url, struct fetch *fetch_handle)
 	ctx->fetch_handle = fetch_handle;
 	ctx->head_done = false;
 	ctx->cached = 0;
+	ctx->input = NULL;
 	return ctx;
 }
 
@@ -99,6 +100,7 @@ struct gopher_state *gopher_state_create(nsurl *url, struct fetch *fetch_handle)
 
 void gopher_state_free(struct gopher_state *s)
 {
+	free(s->input);
 	nsurl_unref(s->url);
 	free(s);
 }
@@ -122,8 +124,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 {
 	char buffer[4096];
 	const char *p = data;
-	size_t remaining = size;
-	size_t left;
+	size_t left = size;
 	fetch_msg msg;
 	LOG(("gopher %p, (,, %d)", s, size));
 
@@ -144,22 +145,17 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 		return 0;
 	}
 
-	/* XXX: should we loop there until remaining is 0 ? Seems not needed. */
-	/* XXX: note there is a possibility of endless loop if a line is larger
-	 * than the input buffer...
-	 */
+	LOG(("iteration: cached %d left %d", s->cached, left));
 
-	LOG(("iteration: cached %d remaining %d", s->cached, remaining));
+	if (s->cached) {
+		s->input = realloc(s->input, s->cached + left);
+		memcpy(s->input + s->cached, data, left);
+		p = s->input;
+		left += s->cached;
+		s->cached = left;
+	}
 
-	p = s->input;
-	left = MIN(sizeof(s->input) - s->cached, remaining);
-	memcpy(s->input + s->cached, data, left);
-	remaining -= left;
-	data += left;
-	s->cached += left;
-	left = s->cached;
-
-	LOG(("copied: cached %d remaining %d", s->cached, remaining));
+	LOG(("copied: cached %d left %d", s->cached, left));
 
 	if (!s->head_done)
 	{
@@ -203,9 +199,13 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 	LOG(("last row, left %d", left));
 
 	/* move the remainder to the beginning of the buffer */
-	if (left)
-		memmove(s->input, s->input + s->cached - left, left);
+	if (left) {
+		if (!s->input)
+			s->input = malloc(left);
+		memmove(s->input, p, left);
+	}
 	s->cached = left;
+	/* no need to realloc, either we will again right away or free. */
 
 	return size;
 
