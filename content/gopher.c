@@ -384,11 +384,11 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 /*#define HTML_LF "\n"*/
 
 	switch (type) {
-	case '.':
+	case GOPHER_TYPE_ENDOFPAGE:
 		/* end of the page */
 		*buffer = '\0';
 		break;
-	case '0':	/* text/plain link */
+	case GOPHER_TYPE_TEXTPLAIN:
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
 				"<span class=\"text\">%s</span></a>"HTML_LF
@@ -398,7 +398,7 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 				alt_port ? fields[3] : "",
 				type, fields[1], nice_text);
 		break;
-	case '9':	/* binary */
+	case GOPHER_TYPE_BINARY:
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
 				"<span class=\"binary\">%s</span></a>"HTML_LF
@@ -408,7 +408,7 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 				alt_port ? fields[3] : "",
 				type, fields[1], nice_text);
 		break;
-	case '1':
+	case GOPHER_TYPE_DIRECTORY:
 		/*
 		 * directory link
 		 */
@@ -421,14 +421,12 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 				alt_port ? fields[3] : "",
 				type, fields[1], nice_text);
 		break;
-	case '3':
-		/* Error
-		 */
+	case GOPHER_TYPE_ERROR:
 		error = snprintf(buffer, buffer_length,
 				"<span class=\"error\">%s</span><br/>"HTML_LF,
 				nice_text);
 		break;
-	case '7':
+	case GOPHER_TYPE_QUERY:
 		/* TODO: handle search better.
 		 * For now we use an unnamed input field and accept sending ?=foo
 		 * as it seems at least Veronica-2 ignores the = but it's unclean.
@@ -446,7 +444,7 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 				alt_port ? fields[3] : "",
 				type, fields[1], nice_text);
 		break;
-	case '8':
+	case GOPHER_TYPE_TELNET:
 		/* telnet: links
 		 * cf. gopher://78.80.30.202/1/ps3
 		 * -> gopher://78.80.30.202:23/8/ps3/new -> new@78.80.30.202
@@ -468,7 +466,7 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 				alt_port ? fields[3] : "",
 				nice_text);
 		break;
-	case 'T':
+	case GOPHER_TYPE_TN3270:
 		/* there seem to be a tn3270: URI scheme drafted at:
 		 * https://datatracker.ietf.org/doc/draft-yevstifeyev-tn3270-uri/
 		 * we'll likely never find this anymore anyway...
@@ -491,9 +489,9 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 				alt_port ? fields[3] : "",
 				nice_text);
 		break;
-	case 'g':
-	case 'I':
-	case 'p':
+	case GOPHER_TYPE_GIF:
+	case GOPHER_TYPE_IMAGE:
+	case GOPHER_TYPE_PNG:
 		/* quite dangerous, cf. gopher://namcub.accela-labs.com/1/pics */
 		if (nsoption_bool(gopher_inline_images)) {
 			error = snprintf(buffer, buffer_length,
@@ -526,7 +524,7 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 				alt_port ? fields[3] : "",
 				type, fields[1], nice_text);
 		break;
-	case 'h':
+	case GOPHER_TYPE_HTML:
 		if (fields[1] && strncmp(fields[1], "URL:", 4) == 0)
 			redirect_url = fields[1] + 4;
 		/* cf. gopher://pineapple.vg/1 */
@@ -551,7 +549,7 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 					type, fields[1], nice_text);
 		}
 		break;
-	case 'i':
+	case GOPHER_TYPE_INFO:
 		error = snprintf(buffer, buffer_length,
 				"<span class=\"info\">%s</span><br/>"HTML_LF,
 				nice_text);

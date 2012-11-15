@@ -28,6 +28,7 @@
 
 typedef enum {
 	GOPHER_TYPE_NONE	= 0,	/* none set */
+	GOPHER_TYPE_ENDOFPAGE	= '.',	/* alone on a line */
 	/* these come from http://tools.ietf.org/html/rfc1436 */
 	GOPHER_TYPE_TEXTPLAIN	= '0',
 	GOPHER_TYPE_DIRECTORY	= '1',
