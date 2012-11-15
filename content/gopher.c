@@ -32,7 +32,7 @@
  * gopher://sdf.org/1/users/	long page
  * gopher://jgw.mdns.org/1/	search items
  * gopher://jgw.mdns.org/1/MISC/	's' item (sound)
- * gopher://gopher.floodgap.com/1/gopher	empty+broken link - fixed 2012/04/08
+ * gopher://gopher.floodgap.com/1/gopher	broken link - fixed 2012/04/08
  * gopher://sdf.org/1/maps/m	missing lines - fixed 2012/04/08
  */
 
@@ -280,11 +280,7 @@ bool gopher_probe_mime(struct gopher_state *s, char *data, size_t size)
 
 	mime = gopher_type_to_mime(s->type);
 
-	/* TODO: use the newer mime sniffer API,
-	 * fetch_filetype() is wrongly assuming unknown files to be HTML.
-	 */
-	if (mime == NULL)
-		mime = fetch_filetype(nsurl_access(s->url));
+	/* leave other types unknown and let the mime sniffer handle them */
 
 	if (mime) {
 		LOG(("gopher %p mime is '%s'", s, mime));
@@ -298,6 +294,8 @@ bool gopher_probe_mime(struct gopher_state *s, char *data, size_t size)
 
 		return true;
 	}
+
+	LOG(("gopher %p unknown mime (type '%c')", s, s->type));
 
 	return false;
 }
@@ -433,7 +431,6 @@ static bool gopher_generate_top(char *buffer, int buffer_length)
 	int error = snprintf(buffer, buffer_length,
 			"<html>\n"
 			"<head>\n"
-			/*"<!-- base href=\"%s\" -->\n"*//* XXX: needs the content url */
 			"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
 			"<link rel=\"stylesheet\" title=\"Standard\" "
 				"type=\"text/css\" href=\"resource:internal.css\">\n"
