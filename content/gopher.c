@@ -499,11 +499,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 				nice_text);
 		break;
 	case GOPHER_TYPE_TN3270:
-		/* there seem to be a tn3270: URI scheme drafted at:
-		 * https://datatracker.ietf.org/doc/draft-yevstifeyev-tn3270-uri/
-		 * we'll likely never find this anymore anyway...
-		 * note it wrongly uses 21 as default port though...
-		 */
+		/* tn3270: URI scheme, cf. http://tools.ietf.org/html/rfc6270 */
 		alt_port = false;
 		if (fields[FIELD_PORT] && fields[FIELD_PORT][0] &&
 				strcmp(fields[FIELD_PORT], "23"))
