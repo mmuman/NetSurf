@@ -371,7 +371,7 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 	bool alt_port = false;
 	char *username = NULL;
 
-	if (fields[3] && strcmp(fields[3], "70"))
+	if (fields[3] && fields[3][0] &&  strcmp(fields[3], "70"))
 		alt_port = true;
 
 	/* escape html special characters */
@@ -452,13 +452,36 @@ static bool gopher_generate_row_internal(char type, char *fields[5],
 		 * -> gopher://78.80.30.202:23/8/ps3/new -> new@78.80.30.202
 		 */
 		alt_port = false;
-		if (fields[3] && strcmp(fields[3], "23"))
+		if (fields[3] && fields[3][0] && strcmp(fields[3], "23"))
 			alt_port = true;
 		username = strrchr(fields[1], '/');
 		if (username)
 			username++;
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"telnet://%s%s%s%s%s\">"HTML_LF
+				"<span class=\"telnet\">%s</span></a>"HTML_LF
+				"<br/>"HTML_LF,
+				username ? username : "",
+				username ? "@" : "",
+				fields[2],
+				alt_port ? ":" : "",
+				alt_port ? fields[3] : "",
+				nice_text);
+		break;
+	case 'T':
+		/* there seem to be a tn3270: URI scheme drafted at:
+		 * https://datatracker.ietf.org/doc/draft-yevstifeyev-tn3270-uri/
+		 * we'll likely never find this anymore anyway...
+		 * note it wrongly uses 21 as default port though...
+		 */
+		alt_port = false;
+		if (fields[3] && fields[3][0] && strcmp(fields[3], "23"))
+			alt_port = true;
+		username = strrchr(fields[1], '/');
+		if (username)
+			username++;
+		error = snprintf(buffer, buffer_length,
+				"<a href=\"tn3270://%s%s%s%s%s\">"HTML_LF
 				"<span class=\"telnet\">%s</span></a>"HTML_LF
 				"<br/>"HTML_LF,
 				username ? username : "",
