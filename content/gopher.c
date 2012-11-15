@@ -28,7 +28,7 @@
  * gopher://sdf.org/1/sdf/historical	images
  * gopher://sdf.org/1/sdf/classes	binaries
  * gopher://sdf.org/1/users/	long page
- * gopher://gopher.floodgap.com/1/gopher	empty line with broken link!
+ * gopher://gopher.floodgap.com/1/gopher	empty+broken link - fixed 2012/04/08
  * gopher://sdf.org/1/maps/m	missing lines - fixed 2012/04/08
  */
 
@@ -712,6 +712,8 @@ static bool gopher_generate_row(const char **data, size_t *size,
 			type = *p;
 			if (!type || type == '\n' || type == '\r') {
 				LOG(("warning: invalid gopher item type 0x%02x", type));
+				/* force reparsing the type */
+				type = 0;
 			}
 			s++;
 			continue;
@@ -723,7 +725,9 @@ static bool gopher_generate_row(const char **data, size_t *size,
 			}
 			/* FALLTHROUGH */
 		case '\r':
-			if (sz < 1 || p[1] != '\n') {
+			if (sz < 2)
+				continue;	/* \n should be in the next buffer */
+			if (p[1] != '\n') {
 				LOG(("warning: CR without LF in gopher item '%c'", type));
 			}
 			if (field < FIELD_PORT && type != '.') {
