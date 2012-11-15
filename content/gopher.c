@@ -27,6 +27,7 @@
  * tests:
  * gopher://sdf.org/1/sdf/historical	images
  * gopher://sdf.org/1/sdf/classes	binaries
+ * gopher://sdf.org/1/users/	long page
  * gopher://gopher.floodgap.com/1/gopher	empty line with broken link!
  * gopher://sdf.org/1/maps/m	missing lines - fixed 2012/04/08
  */
@@ -390,6 +391,10 @@ static bool gopher_generate_title(const char *title, char *buffer, int buffer_le
 			"<title>%s</title>\n"
 			"</head>\n"
 			"<body id=\"gopher\">\n"
+			"<div class=\"uplink dontprint\">\n"
+			"<a href=\"..\">[up]</a>\n"
+			"<a href=\"/\">[top]</a>\n"
+			"</div>\n"
 			"<h1>%s</h1>\n",
 			title, title);
 	if (error < 0 || error >= buffer_length)

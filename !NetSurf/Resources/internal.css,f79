@@ -201,6 +201,13 @@ body#gopher {
 	font-size: 100%;
 	padding-bottom: 2em; }
 
+body#gopher div.uplink {
+	padding: 0;
+	margin: 0;
+	position: fixed;
+	top: 5px;
+	right: 5px; }
+
 body#gopher h1 {
 	padding: 5mm;
 	margin: 0;
