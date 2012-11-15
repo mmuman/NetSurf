@@ -425,11 +425,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 	/* escape html special characters */
 	nice_text = html_escape_string(fields[FIELD_NAME]);
 
-	/* XXX: outputting \n generates better looking html code,
-	 * but currently screws up indentation due to a bug.
-	 */
-#define HTML_LF
-/*#define HTML_LF "\n"*/
+#define HTML_LF "\n"
 
 	switch (type) {
 	case GOPHER_TYPE_ENDOFPAGE:
@@ -438,8 +434,8 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		break;
 	case GOPHER_TYPE_TEXTPLAIN:
 		error = snprintf(buffer, buffer_length,
-				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
-				"<span class=\"text\">%s</span></a>"HTML_LF
+				"<a href=\"gopher://%s%s%s/%c%s\">"
+				"<span class=\"text\">%s</span></a>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
@@ -451,8 +447,8 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 	case GOPHER_TYPE_BINARCHIVE:
 	case GOPHER_TYPE_UUENCODED:
 		error = snprintf(buffer, buffer_length,
-				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
-				"<span class=\"binary\">%s</span></a>"HTML_LF
+				"<a href=\"gopher://%s%s%s/%c%s\">"
+				"<span class=\"binary\">%s</span></a>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
@@ -464,8 +460,8 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		 * directory link
 		 */
 		error = snprintf(buffer, buffer_length,
-				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
-				"<span class=\"dir\">%s</span></a>"HTML_LF
+				"<a href=\"gopher://%s%s%s/%c%s\">"
+				"<span class=\"dir\">%s</span></a>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
@@ -483,12 +479,12 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		 * as it seems at least Veronica-2 ignores the = but it's unclean.
 		 */
 		error = snprintf(buffer, buffer_length,
-				"<form method=\"get\" action=\"gopher://%s%s%s/%c%s\">"HTML_LF
+				"<form method=\"get\" action=\"gopher://%s%s%s/%c%s\">"
 				"<span class=\"query\">"
 				"<label>%s "
 				"<input name=\"\" type=\"text\" align=\"right\" />"
 				"</label>"
-				"</span></form>"HTML_LF
+				"</span></form>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
@@ -508,8 +504,8 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		if (username)
 			username++;
 		error = snprintf(buffer, buffer_length,
-				"<a href=\"telnet://%s%s%s%s%s\">"HTML_LF
-				"<span class=\"telnet\">%s</span></a>"HTML_LF
+				"<a href=\"telnet://%s%s%s%s%s\">"
+				"<span class=\"telnet\">%s</span></a>"
 				"<br/>"HTML_LF,
 				username ? username : "",
 				username ? "@" : "",
@@ -528,8 +524,8 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		if (username)
 			username++;
 		error = snprintf(buffer, buffer_length,
-				"<a href=\"tn3270://%s%s%s%s%s\">"HTML_LF
-				"<span class=\"telnet\">%s</span></a>"HTML_LF
+				"<a href=\"tn3270://%s%s%s%s%s\">"
+				"<span class=\"telnet\">%s</span></a>"
 				"<br/>"HTML_LF,
 				username ? username : "",
 				username ? "@" : "",
@@ -548,8 +544,8 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 				strcmp(fields[FIELD_PORT], "105"))
 			alt_port = true;
 		error = snprintf(buffer, buffer_length,
-				"<a href=\"cso://%s%s%s\">"HTML_LF
-				"<span class=\"cso\">%s</span></a>"HTML_LF
+				"<a href=\"cso://%s%s%s\">"
+				"<span class=\"cso\">%s</span></a>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
@@ -563,10 +559,10 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		/* quite dangerous, cf. gopher://namcub.accela-labs.com/1/pics */
 		if (nsoption_bool(gopher_inline_images)) {
 			error = snprintf(buffer, buffer_length,
-					"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
-					"<span class=\"img\">%s"HTML_LF /* </span><br/> */
-					/*"<span class=\"img\" >"HTML_LF*/
-					"<img src=\"gopher://%s%s%s/%c%s\" alt=\"%s\"/>"HTML_LF
+					"<a href=\"gopher://%s%s%s/%c%s\">"
+					"<span class=\"img\">%s" /* </span><br/> */
+					/*"<span class=\"img\" >"*/
+					"<img src=\"gopher://%s%s%s/%c%s\" alt=\"%s\"/>"
 					"</span>"
 					"</a>"
 					"<br/>"HTML_LF,
@@ -584,8 +580,8 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		}
 		/* fallback to default, link them */
 		error = snprintf(buffer, buffer_length,
-				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
-				"<span class=\"img\">%s</span></a>"HTML_LF
+				"<a href=\"gopher://%s%s%s/%c%s\">"
+				"<span class=\"img\">%s</span></a>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
@@ -604,16 +600,16 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 
 		if (redirect_url) {
 			error = snprintf(buffer, buffer_length,
-					"<a href=\"%s\">"HTML_LF
-					"<span class=\"html\">%s</span></a>"HTML_LF
+					"<a href=\"%s\">"
+					"<span class=\"html\">%s</span></a>"
 					"<br/>"HTML_LF,
 					redirect_url,
 					nice_text);
 		} else {
 			/* cf. gopher://sdf.org/1/sdf/classes/ */
 			error = snprintf(buffer, buffer_length,
-					"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
-					"<span class=\"html\">%s</span></a>"HTML_LF
+					"<a href=\"gopher://%s%s%s/%c%s\">"
+					"<span class=\"html\">%s</span></a>"
 					"<br/>"HTML_LF,
 					fields[FIELD_HOST],
 					alt_port ? ":" : "",
@@ -636,10 +632,10 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 	case GOPHER_TYPE_AUDIO:
 	case GOPHER_TYPE_SOUND:
 		error = snprintf(buffer, buffer_length,
-				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
-				"<span class=\"audio\">%s</span></a>"HTML_LF
+				"<a href=\"gopher://%s%s%s/%c%s\">"
+				"<span class=\"audio\">%s</span></a>"
 				"<audio src=\"gopher://%s%s%s/%c%s\" controls=\"controls\">"
-				"<span>[player]</span></audio>"HTML_LF
+				"<span>[player]</span></audio>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
@@ -654,8 +650,8 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 	case GOPHER_TYPE_PDF_ALT:
 		/* generic case for known-to-work items */
 		error = snprintf(buffer, buffer_length,
-				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
-				"<span class=\"other\">%s</span></a>"HTML_LF
+				"<a href=\"gopher://%s%s%s/%c%s\">"
+				"<span class=\"other\">%s</span></a>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
@@ -682,8 +678,8 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		/* yet to be tested items, please report when you see them! */
 		LOG(("warning: unknown gopher item type 0x%02x '%c'", type, type));
 		error = snprintf(buffer, buffer_length,
-				"<a href=\"gopher://%s%s%s/%c%s\">"HTML_LF
-				"<span class=\"unknown\">%s</span></a>"HTML_LF
+				"<a href=\"gopher://%s%s%s/%c%s\">"
+				"<span class=\"unknown\">%s</span></a>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
