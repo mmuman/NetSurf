@@ -325,7 +325,6 @@ static bool gopher_generate_top(char *buffer, int buffer_length)
 			 * seems to trigger a reparsing of the gopher data itself as html...
 			 * "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
 			 */
-			/* TODO: move this to clean CSS in internal.css */
 			"<link rel=\"stylesheet\" title=\"Standard\" "
 				"type=\"text/css\" href=\"resource:internal.css\">\n");
 
