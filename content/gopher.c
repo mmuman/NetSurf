@@ -61,7 +61,7 @@
 static char *gen_nice_title(const char *path);
 static bool gopher_generate_top(char *buffer, int buffer_length);
 static bool gopher_generate_title(const char *title, char *buffer,
-		int buffer_length);
+		int buffer_length, bool dotdot);
 static bool gopher_generate_row(const char **data, size_t *size,
 		char *buffer, int buffer_length);
 static bool gopher_generate_bottom(char *buffer, int buffer_length);
@@ -184,7 +184,14 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 
 	if (!s->head_done)
 	{
+		const char *url;
 		char *title;
+		bool dotdot = false;
+
+		url = nsurl_access(s->url);
+		if (url && strlen(url) > 0 && url[strlen(url) - 1] == '/')
+			dotdot = true;
+
 		if (gopher_generate_top(buffer, sizeof(buffer)))
 		{
 			/* send data to the caller */
@@ -197,8 +204,8 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 		/* XXX: should we implement
 		 * gopher://gophernicus.org/0/doc/gopher/gopher-title-resource.txt ?
 		 */
-		title = gen_nice_title(nsurl_access(s->url));
-		if (gopher_generate_title(title, buffer, sizeof(buffer)))
+		title = gen_nice_title(url);
+		if (gopher_generate_title(title, buffer, sizeof(buffer), dotdot))
 		{
 			/* send data to the caller */
 			/*LOG(("FETCH_DATA"));*/
@@ -492,26 +499,31 @@ static bool gopher_generate_top(char *buffer, int buffer_length)
  * \param  title	  title to use
  * \param  buffer	  buffer to fill with generated HTML
  * \param  buffer_length  maximum size of buffer
+ * \param  dotdot	  true if uplink should be ..
  * \return  true iff buffer filled without error
  */
 
-static bool gopher_generate_title(const char *title, char *buffer, int buffer_length)
+static bool gopher_generate_title(const char *title, char *buffer, int buffer_length, bool dotdot)
 {
 	int error;
+	const char *uplink = ".";
 
 	if (title == NULL)
 		title = "";
+
+	if (dotdot)
+		uplink = "..";
 
 	error = snprintf(buffer, buffer_length,
 			"<title>%s</title>\n"
 			"</head>\n"
 			"<body id=\"gopher\">\n"
 			"<div class=\"uplink dontprint\">\n"
-			"<a href=\"..\">[up]</a>\n"
+			"<a href=\"%s\">[up]</a>\n"
 			"<a href=\"/\">[top]</a>\n"
 			"</div>\n"
 			"<h1>%s</h1>\n",
-			title, title);
+			title, uplink, title);
 	if (error < 0 || error >= buffer_length)
 		/* Error or buffer too small */
 		return false;
