@@ -20,6 +20,19 @@
  * Generate HTML content for displaying gopher directory listings (implementation).
  */
 
+/*
+ * docs:
+ * gopher://gopher.floodgap.com/0/overbite/dbrowse?pluginm%201
+ *
+ * tests:
+ * gopher://sdf.org/1/sdf/historical	images
+ * gopher://sdf.org/1/sdf/classes	binaries
+ * gopher://gopher.floodgap.com/1/gopher	empty line with broken link!
+ * gopher://sdf.org/1/maps/m	missing lines - fixed 2012/04/08
+ * gopher://gopherspace.de/1	multiline TITLE (-> <tt> ?) 2015/03/06
+ * gopher://xepb.org/1/XEPb/mirrors/hampa.ch/pub/software/Atari%20ST/ (#040 ??)
+ */
+
 #include <errno.h>
 #include <stdbool.h>
 #include <stddef.h>
