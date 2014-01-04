@@ -850,10 +850,20 @@ static void fetch_curl_free(void *vf)
 		}
 	}
 
-	if (f->gopher)
-		gopher_state_free(f->gopher);
-
 	free(f);
+}
+
+
+/**
+ * Free a gopher fetch structure and associated resources.
+ */
+
+static void fetch_curl_free_gopher(void *vf)
+{
+	struct curl_fetch_info *f = (struct curl_fetch_info *)vf;
+
+	gopher_state_free(f->gopher);
+	fetch_curl_free(vf);
 }
 
 
@@ -1561,6 +1571,7 @@ nserror fetch_curl_register(void)
 			scheme = lwc_string_ref(corestring_lwc_gopher);
 			/* We use a different setup hook */
 			fetcher_ops.setup = fetch_curl_setup_gopher;
+			fetcher_ops.free = fetch_curl_free_gopher;
 
 		} else {
 			/* Ignore non-http(s) protocols */
