@@ -50,7 +50,7 @@
 #include "content/content_protected.h"
 #include "content/fetch.h"
 #include "content/gopher.h"
-#include "desktop/gui.h"
+//#include "desktop/gui.h"
 #include "utils/http.h"
 #include "utils/log.h"
 #include "utils/messages.h"

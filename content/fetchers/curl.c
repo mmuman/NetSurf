@@ -396,6 +396,7 @@ failed:
 }
 
 
+static void fetch_curl_free(void *vf);
 void * fetch_curl_setup_gopher(struct fetch *parent_fetch, nsurl *url,
 		 bool only_2xx, bool downgrade_tls, const char *post_urlenc,
 		 const struct fetch_multipart_data *post_multipart,
