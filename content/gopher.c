@@ -113,7 +113,7 @@ struct gopher_state *gopher_state_create(nsurl *url, struct fetch *fetch_handle)
 	s->input = NULL;
 
 	s->type = GOPHER_TYPE_NONE;
-	url_gopher_type(nsurl_access(url), &s->type);
+	nsurl_gopher_type(url, &s->type);
 	/* on error s->type is left unchanged */
 
 	return s;

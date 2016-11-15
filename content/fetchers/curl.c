@@ -1457,7 +1457,7 @@ nserror fetch_curl_register(void)
 	curl_version_info_data *data;
 	int i;
 	lwc_string *scheme;
-	/*const*/ struct fetcher_operation_table fetcher_ops = {
+	const struct fetcher_operation_table fetcher_ops = {
 		.initialise = fetch_curl_initialise,
 		.acceptable = fetch_curl_can_fetch,
 		.setup = fetch_curl_setup,
@@ -1466,6 +1466,16 @@ nserror fetch_curl_register(void)
 		.free = fetch_curl_free,
 		.poll = fetch_curl_poll,
 		.fdset = fetch_curl_fdset,
+		.finalise = fetch_curl_finalise
+	};
+	const struct fetcher_operation_table gopher_fetcher_ops = {
+		.initialise = fetch_curl_initialise,
+		.acceptable = fetch_curl_can_fetch,
+		.setup = fetch_curl_setup_gopher,
+		.start = fetch_curl_start,
+		.abort = fetch_curl_abort,
+		.free = fetch_curl_free_gopher,
+		.poll = fetch_curl_poll,
 		.finalise = fetch_curl_finalise
 	};
 
@@ -1562,6 +1572,7 @@ nserror fetch_curl_register(void)
 	data = curl_version_info(CURLVERSION_NOW);
 
 	for (i = 0; data->protocols[i]; i++) {
+		const struct fetcher_operation_table *ops = &fetcher_ops;
 		if (strcmp(data->protocols[i], "http") == 0) {
 			scheme = lwc_string_ref(corestring_lwc_http);
 
@@ -1570,16 +1581,14 @@ nserror fetch_curl_register(void)
 
 		} else if (strcmp(data->protocols[i], "gopher") == 0) {
 			scheme = lwc_string_ref(corestring_lwc_gopher);
-			/* We use a different setup hook */
-			fetcher_ops.setup = fetch_curl_setup_gopher;
-			fetcher_ops.free = fetch_curl_free_gopher;
+			ops = &gopher_fetcher_ops;
 
 		} else {
 			/* Ignore non-http(s) protocols */
 			continue;
 		}
 
-		if (fetcher_add(scheme, &fetcher_ops) != NSERROR_OK) {
+		if (fetcher_add(scheme, ops) != NSERROR_OK) {
 			LOG("Unable to register cURL fetcher for %s", data->protocols[i]);
 		}
 	}
