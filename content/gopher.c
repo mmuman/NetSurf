@@ -684,7 +684,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 	case GOPHER_TYPE_PNG:
 	case GOPHER_TYPE_BITMAP:
 		/* quite dangerous, cf. gopher://namcub.accela-labs.com/1/pics */
-		if (nsoption_bool(gopher_inline_images)) {
+		if (nsoption_bool(foreground_images)) {
 			error = snprintf(buffer, buffer_length,
 					"<a href=\"gopher://%s%s%s/%c%s\">"
 					"<span class=\"img\">%s" /* </span><br/> */

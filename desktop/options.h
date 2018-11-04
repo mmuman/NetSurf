@@ -63,9 +63,6 @@ NSOPTION_STRING(http_proxy_noproxy, "localhost")
 /** Default treeview font size (unit: 0.1pt) */
 NSOPTION_INTEGER(treeview_font_size, 110)
 
-/** Inline images into Gopher pages */
-NSOPTION_BOOL(gopher_inline_images, false)
-
 /** Default font size (unit: 0.1pt) */
 NSOPTION_INTEGER(font_size, 128)
 
