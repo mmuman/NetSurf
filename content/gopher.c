@@ -562,12 +562,12 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 	case GOPHER_TYPE_TEXTPLAIN:
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"
-				"<span class=\"text\">%s</span></a>"
+				"<span class=\"gopher-item-%c text\">%s</span></a>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
 				alt_port ? fields[FIELD_PORT] : "",
-				type, fields[FIELD_SELECTOR], nice_text);
+				type, fields[FIELD_SELECTOR], type, nice_text);
 		break;
 	case GOPHER_TYPE_BINARY:
 	case GOPHER_TYPE_BINHEX:
@@ -575,12 +575,12 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 	case GOPHER_TYPE_UUENCODED:
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"
-				"<span class=\"binary\">%s</span></a>"
+				"<span class=\"gopher-item-%c binary\">%s</span></a>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
 				alt_port ? fields[FIELD_PORT] : "",
-				type, fields[FIELD_SELECTOR], nice_text);
+				type, fields[FIELD_SELECTOR], type, nice_text);
 		break;
 	case GOPHER_TYPE_DIRECTORY:
 		/*
@@ -588,17 +588,17 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		 */
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"
-				"<span class=\"dir\">%s</span></a>"
+				"<span class=\"gopher-item-%c dir\">%s</span></a>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
 				alt_port ? fields[FIELD_PORT] : "",
-				type, fields[FIELD_SELECTOR], nice_text);
+				type, fields[FIELD_SELECTOR], type, nice_text);
 		break;
 	case GOPHER_TYPE_ERROR:
 		error = snprintf(buffer, buffer_length,
-				"<span class=\"error\">%s</span><br/>"HTML_LF,
-				nice_text);
+				"<span class=\"gopher-item-%c error\">%s</span><br/>"HTML_LF,
+				type, nice_text);
 		break;
 	case GOPHER_TYPE_QUERY:
 		/* TODO: handle search better.
@@ -607,7 +607,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		 */
 		error = snprintf(buffer, buffer_length,
 				"<form method=\"get\" action=\"gopher://%s%s%s/%c%s\">"
-				"<span class=\"query\">"
+				"<span class=\"gopher-item-%c query\">"
 				"<label>%s "
 				"<input name=\"\" type=\"text\" align=\"right\" />"
 				"</label>"
@@ -616,7 +616,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
 				alt_port ? fields[FIELD_PORT] : "",
-				type, fields[FIELD_SELECTOR], nice_text);
+				type, fields[FIELD_SELECTOR], type, nice_text);
 		break;
 	case GOPHER_TYPE_TELNET:
 		/* telnet: links
@@ -632,14 +632,14 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 			username++;
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"telnet://%s%s%s%s%s\">"
-				"<span class=\"telnet\">%s</span></a>"
+				"<span class=\"gopher-item-%c telnet\">%s</span></a>"
 				"<br/>"HTML_LF,
 				username ? username : "",
 				username ? "@" : "",
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
 				alt_port ? fields[FIELD_PORT] : "",
-				nice_text);
+				type, nice_text);
 		break;
 	case GOPHER_TYPE_TN3270:
 		/* tn3270: URI scheme, cf. http://tools.ietf.org/html/rfc6270 */
@@ -652,14 +652,14 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 			username++;
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"tn3270://%s%s%s%s%s\">"
-				"<span class=\"telnet\">%s</span></a>"
+				"<span class=\"gopher-item-%c telnet\">%s</span></a>"
 				"<br/>"HTML_LF,
 				username ? username : "",
 				username ? "@" : "",
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
 				alt_port ? fields[FIELD_PORT] : "",
-				nice_text);
+				type, nice_text);
 		break;
 	case GOPHER_TYPE_CSO_SEARCH:
 		/* CSO search.
@@ -672,12 +672,12 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 			alt_port = true;
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"cso://%s%s%s\">"
-				"<span class=\"cso\">%s</span></a>"
+				"<span class=\"gopher-item-%c cso\">%s</span></a>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
 				alt_port ? fields[FIELD_PORT] : "",
-				nice_text);
+				type, nice_text);
 		break;
 	case GOPHER_TYPE_GIF:
 	case GOPHER_TYPE_IMAGE:
@@ -687,7 +687,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		if (nsoption_bool(foreground_images)) {
 			error = snprintf(buffer, buffer_length,
 					"<a href=\"gopher://%s%s%s/%c%s\">"
-					"<span class=\"img\">%s" /* </span><br/> */
+					"<span class=\"gopher-item-I img\">%s" /* </span><br/> */
 					/*"<span class=\"img\" >"*/
 					"<img src=\"gopher://%s%s%s/%c%s\" alt=\"%s\"/>"
 					"</span>"
@@ -708,7 +708,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		/* fallback to default, link them */
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"
-				"<span class=\"img\">%s</span></a>"
+				"<span class=\"gopher-item-I img\">%s</span></a>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
@@ -728,20 +728,20 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		if (redirect_url) {
 			error = snprintf(buffer, buffer_length,
 					"<a href=\"%s\">"
-					"<span class=\"html\">%s</span></a>"
+					"<span class=\"gopher-item-%c html\">%s</span></a>"
 					"<br/>"HTML_LF,
 					redirect_url,
-					nice_text);
+					type, nice_text);
 		} else {
 			/* cf. gopher://sdf.org/1/sdf/classes/ */
 			error = snprintf(buffer, buffer_length,
 					"<a href=\"gopher://%s%s%s/%c%s\">"
-					"<span class=\"html\">%s</span></a>"
+					"<span class=\"gopher-item-%c html\">%s</span></a>"
 					"<br/>"HTML_LF,
 					fields[FIELD_HOST],
 					alt_port ? ":" : "",
 					alt_port ? fields[FIELD_PORT] : "",
-					type, fields[FIELD_SELECTOR], nice_text);
+					type, fields[FIELD_SELECTOR], type, nice_text);
 		}
 		break;
 	case GOPHER_TYPE_INFO:
@@ -752,15 +752,15 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 					nice_text);
 		} else {
 			error = snprintf(buffer, buffer_length,
-					"<span class=\"info\">%s</span><br/>"HTML_LF,
-					nice_text);
+					"<span class=\"gopher-item-%c info\">%s</span><br/>"HTML_LF,
+					type, nice_text);
 		}
 		break;
 	case GOPHER_TYPE_AUDIO:
 	case GOPHER_TYPE_SOUND:
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"
-				"<span class=\"audio\">%s</span></a>"
+				"<span class=\"gopher-item-s audio\">%s</span></a>"
 				"<audio src=\"gopher://%s%s%s/%c%s\" controls=\"controls\">"
 				"<span>[player]</span></audio>"
 				"<br/>"HTML_LF,
@@ -778,17 +778,17 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		/* generic case for known-to-work items */
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"
-				"<span class=\"other\">%s</span></a>"
+				"<span class=\"gopher-item-%c other\">%s</span></a>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
 				alt_port ? fields[FIELD_PORT] : "",
-				type, fields[FIELD_SELECTOR], nice_text);
+				type, fields[FIELD_SELECTOR], type, nice_text);
 		break;
 	case GOPHER_TYPE_MOVIE:
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"
-				"<span class=\"video\">%s</span></a>"
+				"<span class=\"gopher-item-V video\">%s</span></a>"
 				"<video src=\"gopher://%s%s%s/%c%s\" controls=\"controls\">"
 				"<span>[player]</span></video>"
 				"<br/>"HTML_LF,
@@ -806,7 +806,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		NSLOG(gopher, DEBUG, "warning: unknown gopher item type 0x%02x '%c'", type, type);
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"
-				"<span class=\"unknown\">%s</span></a>"
+				"<span class=\"gopher-item-unknown unknown\">%s</span></a>"
 				"<br/>"HTML_LF,
 				fields[FIELD_HOST],
 				alt_port ? ":" : "",
