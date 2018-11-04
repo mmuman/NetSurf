@@ -89,7 +89,8 @@ static struct {
 	{ GOPHER_TYPE_GIF, "image/gif" },
 	{ GOPHER_TYPE_HTML, "text/html" },
 	/* those are not standardized */
-	{ GOPHER_TYPE_PDF_ALT, "application/pdf" },
+	/* gopher://sdf.org/1/sdf/classes uses 'd' for .doc as well... */
+	/*{ GOPHER_TYPE_PDF_ALT, "application/pdf" },*/
 	{ GOPHER_TYPE_PDF, "application/pdf" },
 	{ GOPHER_TYPE_PNG, "image/png"},
 	{ 0, NULL }
