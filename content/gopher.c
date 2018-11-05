@@ -63,7 +63,7 @@ static bool gopher_generate_top(char *buffer, int buffer_length);
 static bool gopher_generate_title(const char *title, char *buffer,
 		int buffer_length, bool dotdot);
 static bool gopher_generate_row(const char **data, size_t *size,
-		char *buffer, int buffer_length);
+		char *buffer, int buffer_length, int *image_count);
 static bool gopher_generate_bottom(char *buffer, int buffer_length);
 
 /** Types of fields in a line */
@@ -96,6 +96,9 @@ static struct {
 	{ 0, NULL }
 };
 
+/* avoid loading hundreds of them and being blacklisted */
+#define MAX_INLINED_IMAGES 10
+
 /**
  * Initialise the state object.
  */
@@ -112,6 +115,7 @@ struct gopher_state *gopher_state_create(nsurl *url, struct fetch *fetch_handle)
 	s->head_done = false;
 	s->cached = 0;
 	s->input = NULL;
+	s->image_count = 0;
 
 	s->type = GOPHER_TYPE_NONE;
 	nsurl_gopher_type(url, &s->type);
@@ -219,7 +223,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 		s->head_done = true;
 	}
 
-	while (gopher_generate_row(&p, &left, buffer, sizeof(buffer)))
+	while (gopher_generate_row(&p, &left, buffer, sizeof(buffer), &s->image_count))
 	{
 		NSLOG(gopher, DEBUG, "done row, left %d", left);
 		/* send data to the caller */
@@ -538,7 +542,7 @@ static bool gopher_generate_title(const char *title, char *buffer, int buffer_le
  */
 
 static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
-		char *buffer, int buffer_length)
+		char *buffer, int buffer_length, int *image_count)
 {
 	char *nice_text;
 	char *redirect_url = NULL;
@@ -685,7 +689,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 	case GOPHER_TYPE_PNG:
 	case GOPHER_TYPE_BITMAP:
 		/* quite dangerous, cf. gopher://namcub.accela-labs.com/1/pics */
-		if (nsoption_bool(foreground_images)) {
+		if (*image_count < MAX_INLINED_IMAGES && nsoption_bool(foreground_images)) {
 			error = snprintf(buffer, buffer_length,
 					"<a href=\"gopher://%s%s%s/%c%s\">"
 					"<span class=\"gopher-item-I img\">%s" /* </span><br/> */
@@ -704,6 +708,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 					alt_port ? fields[FIELD_PORT] : "",
 					type, fields[FIELD_SELECTOR],
 					nice_text);
+			++*image_count;
 			break;
 		}
 		/* fallback to default, link them */
@@ -835,11 +840,12 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
  * \param  size		  pointer to the remaining data size
  * \param  buffer	  buffer to fill with generated HTML
  * \param  buffer_length  maximum size of buffer
+ * \param  image_count	pointer to count of already displayed images
  * \return  true iff buffer filled without error
  */
 
 static bool gopher_generate_row(const char **data, size_t *size,
-		char *buffer, int buffer_length)
+		char *buffer, int buffer_length, int *image_count)
 {
 	bool ok = false;
 	char type = 0;
@@ -883,7 +889,7 @@ static bool gopher_generate_row(const char **data, size_t *size,
 			if (type == '.' && field == 0 && p == s) {
 				;/* XXX: signal end of page? For now we just ignore it. */
 			}
-			ok = gopher_generate_row_internal(type, fields, buffer, buffer_length);
+			ok = gopher_generate_row_internal(type, fields, buffer, buffer_length, image_count);
 			for (i = FIELD_NAME; i < FIELD_COUNT; i++) {
 				free(fields[i]);
 				fields[i] = NULL;

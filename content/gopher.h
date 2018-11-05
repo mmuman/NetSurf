@@ -75,6 +75,7 @@ struct gopher_state {
 	bool head_done;	/**< We already sent the <head> part */
 	size_t cached;	/**< Amount of cached data in the input buffer */
 	char *input;	/**< input buffer */
+	int image_count;	/**< count of already displayed images */
 };
 
 struct gopher_state *gopher_state_create(nsurl *url, struct fetch *fetch_handle);
