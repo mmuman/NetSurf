@@ -51,6 +51,7 @@
 #include "content/content_protected.h"
 #include "content/fetch.h"
 #include "content/gopher.h"
+#include "netsurf/inttypes.h"
 #include "utils/http.h"
 #include "utils/log.h"
 #include "utils/messages.h"
@@ -156,7 +157,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 	const char *p = data;
 	size_t left = size;
 	fetch_msg msg;
-	NSLOG(gopher, DEBUG, "@ %p, (,, %d)", s, size);
+	NSLOG(gopher, DEBUG, "@ %p, (,, %" PRIsizet ")", s, size);
 
 	/* actually called when done getting it all */
 	if (size == 0)
@@ -175,7 +176,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 		return 0;
 	}
 
-	NSLOG(gopher, DEBUG, "iteration: cached %d left %d", s->cached, left);
+	NSLOG(gopher, DEBUG, "iteration: cached %" PRIsizet " left %" PRIsizet, s->cached, left);
 
 	if (s->cached) {
 		s->input = realloc(s->input, s->cached + left);
@@ -185,7 +186,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 		s->cached = left;
 	}
 
-	NSLOG(gopher, DEBUG, "copied: cached %d left %d", s->cached, left);
+	NSLOG(gopher, DEBUG, "copied: cached %" PRIsizet " left %" PRIsizet, s->cached, left);
 
 	if (!s->head_done)
 	{
@@ -225,7 +226,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 
 	while (gopher_generate_row(&p, &left, buffer, sizeof(buffer), &s->image_count))
 	{
-		NSLOG(gopher, DEBUG, "done row, left %d", left);
+		NSLOG(gopher, DEBUG, "done row, left %" PRIsizet, left);
 		/* send data to the caller */
 		/*NSLOG(gopher, DEBUG, "FETCH_DATA");*/
 		msg.type = FETCH_DATA;
@@ -233,7 +234,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 		msg.data.header_or_data.len = strlen(buffer);
 		fetch_send_callback(&msg, s->fetch_handle);
 	}
-	NSLOG(gopher, DEBUG, "last row, left %d", left);
+	NSLOG(gopher, DEBUG, "last row, left %" PRIsizet, left);
 
 	/* move the remainder to the beginning of the buffer */
 	if (left) {
