@@ -396,7 +396,9 @@ body#fetcherror div#buttons input#back {
 
 body#gopher {
 	/* margin: 10px;*/
-	background-color: #abf;
+	border-color: #b4b4b4;
+	background-color: #f0f0f0;
+	color: #000000;
 	font-size: 100%;
 	padding-bottom: 2em; }
 
@@ -410,14 +412,17 @@ body#gopher div.uplink {
 body#gopher h1 {
 	padding: 5mm;
 	margin: 0;
-	border-bottom: 2px solid #777; }
+	border-bottom: 2px solid #b4b4b4; }
 
 body#gopher span {
-	background-color: #b2c3ff;
+	/*background-color: #b2c3ff;*/
 	margin-left: 1em;
 	padding-left: 2em;
 	font-family: Courier, monospace;
-	white-space: pre-wrap; }
+	white-space: pre-wrap;
+	background-position: 4px 50%;
+	background-repeat: no-repeat;
+}
 
 body#gopher span.error {
 	color: #f00; }
@@ -426,19 +431,13 @@ body#gopher span.unknown {
 	color: #800; }
 
 body#gopher span.dir {
-	background-image: url('resource:icons/directory.png');
-	background-repeat: no-repeat;
-	background-position: bottom left; }
+	background-image: url('resource:icons/directory.png'); }
 
 body#gopher span.text {
-	background-image: url('resource:icons/content.png');
-	background-repeat: no-repeat;
-	background-position: bottom left; }
+	background-image: url('resource:icons/content.png'); }
 
 body#gopher span.query {
-	background-image: url('resource:icons/search.png');
-	background-repeat: no-repeat;
-	background-position: bottom left; }
+	background-image: url('resource:icons/search.png'); }
 
 body#gopher span.img img {
 	display: block;
