@@ -1,0 +1,12 @@
+# -*- mode: makefile-gmake -*-
+##
+## cocoa (OSX, GNUstep) target tool setup
+##
+
+ifneq ($(HOST),macosx)
+  # TODO
+  PKG_CONFIG := PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/usr/local/lib/pkgconfig" pkg-config
+else
+  # Building for GNUstep, likely on GNU/Linux
+  PKG_CONFIG := PKG_CONFIG_PATH="$(PKG_CONFIG_PATH):/usr/local/lib/pkgconfig" pkg-config
+endif

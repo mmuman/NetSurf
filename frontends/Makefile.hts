@@ -61,6 +61,13 @@ ifeq ($(HOST),AmigaOS)
   endif
 endif
 
+ifeq ($(HOST),Darwin)
+  HOST := macosx
+  ifeq ($(TARGET),)
+    TARGET := cocoa
+  endif
+endif
+
 ifeq ($(HOST),FreeMiNT)
   HOST := mint
 endif
@@ -114,7 +121,7 @@ else
 endif
 
 # valid values for the TARGET
-VLDTARGET := amiga atari beos framebuffer gtk monkey riscos windows
+VLDTARGET := amiga atari beos cocoa framebuffer gtk monkey riscos windows
 
 # Check for valid TARGET
 ifeq ($(filter $(VLDTARGET),$(TARGET)),)
