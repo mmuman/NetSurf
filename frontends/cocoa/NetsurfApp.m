@@ -240,6 +240,8 @@ int main( int argc, char **argv )
                 .layout = cocoa_layout_table,
         };
 
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
         error = netsurf_register(&cocoa_table);
         if (error != NSERROR_OK) {
                 die("NetSurf operation table failed registration");
@@ -294,6 +296,8 @@ int main( int argc, char **argv )
                         cocoa_warning(messages_get_errorcode(error), 0);
                 }
         }
+
+        [pool release];
 
         [app run];
 
