@@ -593,7 +593,9 @@ static PSMTabDragAssistant *sharedDragAssistant = nil;
 	NSImage *image = [[[NSImage alloc] initWithSize:rect.size] autorelease];
 	[image lockFocus];
 	rect.origin = NSZeroPoint;
+#ifndef GNUSTEP
 	CGContextCopyWindowCaptureContentsToRect([[NSGraphicsContext currentContext] graphicsPort], *(CGRect *)&rect, [NSApp contextID], [window windowNumber], 0);
+#endif
 	[image unlockFocus];
 
 	return image;
@@ -631,7 +633,9 @@ static PSMTabDragAssistant *sharedDragAssistant = nil;
 
 	transform = CGAffineTransformTranslate(transform, translation.x, translation.y);
 
+#ifndef GNUSTEP
 	CGSSetWindowTransform([NSApp contextID], [window windowNumber], transform);
+#endif
 
 	[window setAlphaValue:[animation currentValue]];
 

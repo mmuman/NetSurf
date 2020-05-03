@@ -53,27 +53,35 @@ static const char *fetch_filetype(const char *unix_path)
 
 	uti = [[NSWorkspace sharedWorkspace] typeOfFile: [NSString stringWithUTF8String: unix_path] error:&utiError];
 	if (nil != uti) {
+#ifndef GNUSTEP//BORON
 		NSLOG(netsurf, INFO, "Looking for mimetype from uti \"%s\"", [uti UTF8String] );
 		mimeType = (NSString *)UTTypeCopyPreferredTagWithClass( (CFStringRef)uti, kUTTagClassMIMEType );
+#endif /* GNUSTEP */
 	} else {
-		NSAlert *utiAlert = [NSAlert alertWithError:utiError];
-		[utiAlert runModal]; // Ignore return value.
+		//NSAlert *utiAlert = [NSAlert alertWithError:utiError];
+		//[utiAlert runModal]; // Ignore return value.
 
 		NSLOG(netsurf, INFO, "uti call failed");
 
-		strncpy(cocoafiletype, "text/html", sizeof(cocoafiletype));
-		return cocoafiletype;
+		//strncpy(cocoafiletype, "text/html", sizeof(cocoafiletype));
+		//return cocoafiletype;
 	}
 
 	if (nil != mimeType) {
 		strncpy(cocoafiletype, [mimeType UTF8String], sizeof(cocoafiletype));
 		[mimeType release];
 	} else {
-		const char *extension;
+		const char *extension = NULL;
 
 		NSLOG(netsurf, INFO, "mimetype from uti failed");
 
+#ifndef GNUSTEP//BORON
 		extension = [(NSString *)UTTypeCopyPreferredTagWithClass( (CFStringRef)uti, kUTTagClassFilenameExtension) UTF8String];
+#else
+		extension = strrchr(unix_path, '.');
+		if (extension)
+			extension++;
+#endif /* GNUSTEP */
 
 		if (extension == NULL) {
 			/* give up and go with default */

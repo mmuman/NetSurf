@@ -28,6 +28,10 @@
 #import "cocoa/PreferencesWindowController.h"
 #import "cocoa/HistoryWindowController.h"
 
+#ifndef __APPLE__
+#define keyDirectObject '----'
+#endif
+
 
 @interface NetSurfAppDelegate ()
 
@@ -168,10 +172,12 @@
 
 -(void)applicationWillFinishLaunching:(NSNotification *)aNotification 
 {
+#ifdef __APPLE__
     NSAppleEventManager *appleEventManager = [NSAppleEventManager sharedAppleEventManager];
     [appleEventManager setEventHandler:self 
                            andSelector:@selector(handleGetURLEvent:withReplyEvent:)
                          forEventClass:kInternetEventClass andEventID:kAEGetURL];
+#endif /* __APPLE__ */
 }
 
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename

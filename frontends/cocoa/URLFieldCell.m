@@ -178,11 +178,13 @@
 
 - (NSButtonCell *) refreshCell;
 {
+#ifndef GNUSTEP
 	if (nil == refreshCell) {
 		refreshCell = [[NSButtonCell alloc] initImageCell: [NSImage imageNamed: NSImageNameRefreshTemplate]];
 		[refreshCell setButtonType: NSMomentaryPushInButton];
 		[refreshCell setBordered: NO];
 	}
+#endif
 	return refreshCell;
 }
 
