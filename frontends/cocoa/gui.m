@@ -100,13 +100,13 @@ static void gui_window_set_title(struct gui_window *g, const char *title)
 	[(BrowserViewController *)g setTitle: [NSString stringWithUTF8String: title]];
 }
 
-static void gui_window_redraw_window(struct gui_window *g)
+static void gui_window_invalidate(struct gui_window *g, const struct rect *rect)
 {
-	[[(BrowserViewController *)g browserView] setNeedsDisplay: YES];
-}
+	if (rect == NULL) {
+		[[(BrowserViewController *)g browserView] setNeedsDisplay: YES];
+		return;
+	}
 
-static void gui_window_update_box(struct gui_window *g, const struct rect *rect)
-{
 	const NSRect nsrect = cocoa_scaled_rect_wh( 
 		browser_window_get_scale([(BrowserViewController *)g browser]),
 		rect->x0, rect->y0, 
@@ -268,6 +268,43 @@ static void gui_window_new_content(struct gui_window *g)
 	[(BrowserViewController *)g contentUpdated];
 }
 
+/**
+ * process miscellaneous window events
+ *
+ * \param gw The window receiving the event.
+ * \param event The event code.
+ * \return NSERROR_OK when processed ok
+ */
+static nserror
+gui_window_event(struct gui_window *gw, enum gui_window_event event)
+{
+	switch (event) {
+	case GW_EVENT_UPDATE_EXTENT:
+		gui_window_update_extent(gw);
+		break;
+
+	case GW_EVENT_REMOVE_CARET:
+		gui_window_remove_caret(gw);
+		break;
+
+	case GW_EVENT_NEW_CONTENT:
+		gui_window_new_content(gw);
+		break;
+
+	case GW_EVENT_START_THROBBER:
+		gui_window_start_throbber(gw);
+		break;
+
+	case GW_EVENT_STOP_THROBBER:
+		gui_window_stop_throbber(gw);
+		break;
+
+	default:
+		break;
+	}
+	return NSERROR_OK;
+}
+
 
 static void gui_create_form_select_menu(struct gui_window *g,
                                         struct form_control *control)
@@ -301,12 +338,11 @@ gui_cert_verify(nsurl *url,
 static struct gui_window_table window_table = {
 	.create = gui_window_create,
 	.destroy = gui_window_destroy,
-	.redraw = gui_window_redraw_window,
-	.update = gui_window_update_box,
+	.invalidate = gui_window_invalidate,
 	.get_scroll = gui_window_get_scroll,
 	.set_scroll = gui_window_set_scroll,
 	.get_dimensions = gui_window_get_dimensions,
-	.update_extent = gui_window_update_extent,
+	.event = gui_window_event,
 
 	.set_title = gui_window_set_title,
 	.set_url = gui_window_set_url,
@@ -314,10 +350,6 @@ static struct gui_window_table window_table = {
 	.set_status = gui_window_set_status,
 	.set_pointer = gui_window_set_pointer,
 	.place_caret = gui_window_place_caret,
-	.remove_caret = gui_window_remove_caret,
-	.new_content = gui_window_new_content,
-	.start_throbber = gui_window_start_throbber,
-	.stop_throbber = gui_window_stop_throbber,
 	.create_form_select_menu = gui_create_form_select_menu,
 };
 
@@ -326,7 +358,6 @@ struct gui_window_table *cocoa_window_table = &window_table;
 
 static struct gui_misc_table browser_table = {
 	.schedule = cocoa_schedule,
-	.warning = cocoa_warning,
 
 	.launch_url = gui_launch_url,
 	.cert_verify = gui_cert_verify,

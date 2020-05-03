@@ -75,10 +75,17 @@ static void cocoa_plot_path_set_stroke_pattern(NSBezierPath *path,const plot_sty
 	[path setLineWidth: cocoa_px_to_pt( pstyle->stroke_width > 0 ? pstyle->stroke_width : 1 )];
 }
 
-static bool plot_line(int x0, int y0, int x1, int y1, const plot_style_t *pstyle)
+static bool plot_line(const struct redraw_context *ctx,
+			  const plot_style_t *pstyle,
+			  const struct rect *line)
 {
-	if (pstyle->stroke_type == PLOT_OP_TYPE_NONE) return true;
-	
+	int x0 = line->x0;
+	int y0 = line->y0;
+	int x1 = line->x1;
+	int y1 = line->y1;
+
+	if (pstyle->stroke_type == PLOT_OP_TYPE_NONE) return NSERROR_OK;
+
 	[NSGraphicsContext saveGraphicsState];
 	[NSBezierPath clipRect: cocoa_plot_clip_rect];
 	
@@ -98,20 +105,23 @@ static bool plot_line(int x0, int y0, int x1, int y1, const plot_style_t *pstyle
 	
 	[NSGraphicsContext restoreGraphicsState];
 	
-	return true;
+	return NSERROR_OK;
 }
 
-static bool plot_rectangle(int x0, int y0, int x1, int y1, const plot_style_t *pstyle)
+static bool plot_rectangle(const struct redraw_context *ctx,
+			   const plot_style_t *pstyle,
+			   const struct rect *rect)
 {
-	NSRect rect = cocoa_rect( x0, y0, x1, y1 );
-	NSBezierPath *path = [NSBezierPath bezierPathWithRect: rect];
+	NSRect nsrect = cocoa_rect( rect->x0, rect->y0, rect->x1, rect->y1 );
+	NSBezierPath *path = [NSBezierPath bezierPathWithRect: nsrect];
 	cocoa_plot_render_path( path, pstyle );
 	
-	return true;
+	return NSERROR_OK;
 }
 
-static bool plot_text(int x, int y, const char *text, size_t length,
-			 const plot_font_style_t *fstyle)
+static bool plot_text(const struct redraw_context *ctx,
+			 const plot_font_style_t *fstyle,
+			 int x, int y, const char *text, size_t length)
 {
 	[NSGraphicsContext saveGraphicsState];
 	[NSBezierPath clipRect: cocoa_plot_clip_rect];
@@ -120,7 +130,7 @@ static bool plot_text(int x, int y, const char *text, size_t length,
 	
 	[NSGraphicsContext restoreGraphicsState];
 	
-	return true;
+	return NSERROR_OK;
 }
 
 void cocoa_set_clip( NSRect rect )
@@ -131,7 +141,7 @@ void cocoa_set_clip( NSRect rect )
 static bool plot_clip(const struct rect *clip)
 {
 	cocoa_plot_clip_rect = cocoa_rect( clip->x0, clip->y0, clip->x1, clip->y1 );
-	return true;
+	return NSERROR_OK;
 }
 
 void cocoa_plot_render_path(NSBezierPath *path,const plot_style_t *pstyle) 
@@ -157,7 +167,9 @@ void cocoa_plot_render_path(NSBezierPath *path,const plot_style_t *pstyle)
 	[NSGraphicsContext restoreGraphicsState];
 }
 
-static bool plot_arc(int x, int y, int radius, int angle1, int angle2, const plot_style_t *pstyle)
+static bool plot_arc(const struct redraw_context *ctx,
+		   const plot_style_t *pstyle,
+		   int x, int y, int radius, int angle1, int angle2)
 {
 	NSBezierPath *path = [NSBezierPath bezierPath];
 	[path appendBezierPathWithArcWithCenter: NSMakePoint( x, y ) radius: radius 
@@ -166,22 +178,26 @@ static bool plot_arc(int x, int y, int radius, int angle1, int angle2, const plo
 	
 	cocoa_plot_render_path( path, pstyle);
 	
-	return true;
+	return NSERROR_OK;
 }
 
-static bool plot_disc(int x, int y, int radius, const plot_style_t *pstyle)
+static bool plot_disc(const struct redraw_context *ctx,
+		   const plot_style_t *pstyle,
+		   int x, int y, int radius)
 {
 	NSBezierPath *path  = [NSBezierPath bezierPathWithOvalInRect: 
 						   NSMakeRect( x - radius, y-radius, 2*radius, 2*radius )];
 	
 	cocoa_plot_render_path( path, pstyle );
 	
-	return true;
+	return NSERROR_OK;
 }
 
-static bool plot_polygon(const int *p, unsigned int n, const plot_style_t *pstyle)
+static bool plot_polygon(const struct redraw_context *ctx,
+		   const plot_style_t *pstyle,
+		   const int *p, unsigned int n)
 {
-	if (n <= 1) return true;
+	if (n <= 1) return NSERROR_OK;
 	
 	NSBezierPath *path = [NSBezierPath bezierPath];
 	[path moveToPoint: cocoa_point( p[0], p[1] )];
@@ -192,18 +208,20 @@ static bool plot_polygon(const int *p, unsigned int n, const plot_style_t *pstyl
 	
 	cocoa_plot_render_path( path, pstyle );
 	
-	return true;
+	return NSERROR_OK;
 }
 
 /* complex path (for SVG) */
-static bool plot_path(const float *p, unsigned int n, colour fill, float width,
-			 colour c, const float transform[6])
+static bool plot_path(const struct redraw_context *ctx,
+		   const plot_style_t *pstyle,
+		   const float *p, unsigned int n,
+		   const float transform[6])
 {
-	if (n == 0) return true;
+	if (n == 0) return NSERROR_OK;
 	
 	if (*p != PLOTTER_PATH_MOVE) {
 		NSLOG(netsurf, DEBUG, "Path does not start with move");
-		return false;
+		return NSERROR_INVALID;
 	}
 	
 	NSBezierPath *path = [NSBezierPath bezierPath];
@@ -238,13 +256,13 @@ static bool plot_path(const float *p, unsigned int n, colour fill, float width,
 				
 			default:
 				NSLOG(netsurf, DEBUG, "Invalid path");
-				return false;
+				return NSERROR_INVALID;
 		}
 	}
 	
 #undef NEXT_POINT
 	
-	[path setLineWidth: width];
+	[path setLineWidth: cocoa_px_to_pt( pstyle->stroke_width > 0 ? pstyle->stroke_width : 1 )];
 
 	CGContextRef context = [[NSGraphicsContext currentContext] graphicsPort];
 	CGContextSaveGState( context );
@@ -254,25 +272,27 @@ static bool plot_path(const float *p, unsigned int n, colour fill, float width,
 	CGContextConcatCTM( context, CGAffineTransformMake( transform[0], transform[1], transform[2], 
 													    transform[3], transform[4], transform[5] ) );
 	
-	if (fill != NS_TRANSPARENT) {
-		[cocoa_convert_colour( fill ) setFill];
+	if (pstyle->fill_colour != NS_TRANSPARENT) {
+		[cocoa_convert_colour( pstyle->fill_colour ) setFill];
 		[path fill];
 	}
 
-	if (c != NS_TRANSPARENT) {
+	if (pstyle->stroke_colour != NS_TRANSPARENT) {
 		cocoa_center_pixel( true, true );
-		[cocoa_convert_colour( c ) set];
+		[cocoa_convert_colour( pstyle->stroke_colour ) set];
 		[path stroke];
 	}
 	
 	CGContextRestoreGState( context );
 
-	return true;
+	return NSERROR_OK;
 }
 
 /* Image */
-static bool plot_bitmap(int x, int y, int width, int height,
-			   struct bitmap *bitmap, colour bg,
+static bool plot_bitmap(const struct redraw_context *ctx,
+			   struct bitmap *bitmap,
+			   int x, int y, int width, int height,
+			   colour bg,
 			   bitmap_flags_t flags)
 {
 	CGContextRef context = [[NSGraphicsContext currentContext] graphicsPort];
@@ -295,7 +315,7 @@ static bool plot_bitmap(int x, int y, int width, int height,
 	
 	CGContextRestoreGState( context );
 	
-	return true;
+	return NSERROR_OK;
 }
 
 const struct plotter_table cocoa_plotters = {

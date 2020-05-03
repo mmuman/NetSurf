@@ -172,7 +172,14 @@ static const char *cocoa_hotlist_path( void )
 {
         struct browser_window *bw = [[(NetSurfApp *)NSApp frontTab] browser];
         if (bw != NULL) {
-                hotlist_add_url(browser_window_get_url(bw));
+                nserror err;
+                nsurl *nsurl;
+
+                err = browser_window_get_url(bw, true, &nsurl);
+                if (err != NSERROR_OK)
+                        return;
+                hotlist_add_url(nsurl);
+                nsurl_unref(nsurl);
         }
 }
 
