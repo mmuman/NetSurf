@@ -40,7 +40,7 @@
 - (NSSize) size;
 {
 	int width, height;
-	browser_window_history_size( browser, &width, &height );
+	//browser_window_history_size( browser, &width, &height );
 	
 	return cocoa_size( width, height );
 }
@@ -64,18 +64,20 @@
 	
 	cocoa_set_clip( rect );
 	
-	browser_window_history_redraw( browser, &ctx );
+	//browser_window_history_redraw( browser, &ctx );
 }
 
 - (void) mouseUp: (NSEvent *)theEvent;
 {
 	const NSPoint location = [self convertPoint: [theEvent locationInWindow] fromView: nil];
 	const bool newWindow = [theEvent modifierFlags] & NSCommandKeyMask;
-	if (browser_window_history_click( browser, 
+/*
+if (browser_window_history_click( browser, 
 					   cocoa_pt_to_px( location.x ), cocoa_pt_to_px( location.y ),
 					   newWindow )) {
 		[browserView setHistoryVisible: NO];
 	}
+*/
 }
 
 - (BOOL) isFlipped;
