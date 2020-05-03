@@ -17,6 +17,8 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import <CoreFoundation/CFBase.h>
+#import <LaunchServices/UTType.h>
 
 #import "utils/log.h"
 #import "utils/nsurl.h"

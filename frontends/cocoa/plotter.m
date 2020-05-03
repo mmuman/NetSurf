@@ -17,6 +17,7 @@
  */
 
 #include <Cocoa/Cocoa.h>
+#include <CoreGraphics/CoreGraphics.h>
 
 #import "utils/log.h"
 #import "utils/utils.h"

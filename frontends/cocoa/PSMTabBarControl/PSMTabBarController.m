@@ -6,6 +6,7 @@
 //  Copyright 2006 Kent Sutherland. All rights reserved.
 //
 
+#import <CoreFoundation/CFBase.h>
 #import "PSMTabBarController.h"
 #import "PSMTabBarControl.h"
 #import "PSMTabBarCell.h"

@@ -17,6 +17,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import <AppKit/NSFont.h>
 
 #import "utils/nsoption.h"
 #import "netsurf/layout.h"

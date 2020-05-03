@@ -22,6 +22,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import <CoreGraphics/CoreGraphics.h>
 
 #import "netsurf/browser_window.h"
 #import "netsurf/plotters.h"
