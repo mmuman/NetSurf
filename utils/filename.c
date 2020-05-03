@@ -182,7 +182,7 @@ bool filename_initialise(void)
 	if (directory == NULL)
 		return false;
 
-	for (start = directory; *start != '\0'; start++) {
+	for (start = directory+1; *start != '\0'; start++) {
 		if (*start == '/') {
 			*start = '\0';
 			NSLOG(netsurf, INFO, "Creating \"%s\"", directory);
