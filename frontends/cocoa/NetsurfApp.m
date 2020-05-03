@@ -87,7 +87,7 @@ static void die(const char * const error)
         urldb_load_cookies( nsoption_charp(cookie_file) );
 
         cocoa_update_scale_factor();
-        LOG("done setup");
+        NSLOG(netsurf, INFO, "done setup");
 }
 
 - (void) saveOptions
