@@ -18,6 +18,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <AppKit/NSFont.h>
+#import <AppKit/NSLayoutManager.h>
 
 #import "utils/nsoption.h"
 #import "netsurf/layout.h"
@@ -140,8 +141,14 @@ static inline CGFloat cocoa_layout_width( NSLayoutManager *layout )
 
 static inline CGFloat cocoa_layout_width_chars( NSLayoutManager *layout, size_t characters )
 {
+#ifndef GNUSTEP
 	NSUInteger glyphIndex = [layout glyphIndexForCharacterAtIndex: characters];
 	return cocoa_pt_to_px( [layout locationForGlyphAtIndex: glyphIndex].x );
+#else
+	NSRange range = [layout glyphRangeForCharacterRange: NSMakeRange((unsigned int)characters, 1)
+					actualCharacterRange: NULL];
+	return cocoa_pt_to_px( [layout locationForGlyphAtIndex: range.location].x );
+#endif
 }
 
 static inline NSUInteger cocoa_glyph_for_location( NSLayoutManager *layout, CGFloat x )
