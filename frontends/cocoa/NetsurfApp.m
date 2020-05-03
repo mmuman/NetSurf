@@ -61,6 +61,7 @@ static bool cocoa_done = false;
  */
 static void die(const char * const error)
 {
+        assert(false);
         [NSException raise: @"NetsurfDie" format: @"Error: %s", error];
 }
 
