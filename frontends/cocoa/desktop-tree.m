@@ -280,7 +280,7 @@ struct tree *tree_create(unsigned int flags,
 
 	tree = calloc(sizeof(struct tree), 1);
 	if (tree == NULL) {
-		LOG("calloc failed");
+		NSLOG(netsurf, DEBUG, "calloc failed");
 		guit->misc->warning(messages_get_errorcode(NSERROR_NOMEM), 0);
 		return NULL;
 	}
