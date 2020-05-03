@@ -13,6 +13,8 @@ ifneq ($(shell test -d /opt/local && echo 'yes'),)
   CFLAGS += -I/opt/local/include
 endif
 
+ifeq ($(HOST),macosx)
+
 ifeq ($(SDK_VERSION),)
   # if no SDK_VERSION has been specified select one from those available
   SDK_PARAM := $(shell xcodebuild -showsdks | awk '/^$$/{p=0};p; /OS X SDKs:/{p=1}' | tail -1 | cut -f3)
@@ -21,11 +23,17 @@ else
   SDK_PARAM := -sdk macosx$(SDK_VERSION)
 endif
 
-SDK_PATH ?= $(shell xcodebuild -version $(SDK_PARAM) Path)
-SDK_FLAGS := -isysroot $(SDK_PATH) -mmacosx-version-min=$(SDK_VERSION)
-CFLAGS :=  $(SDK_FLAGS) $(CFLAGS)
-LDFLAGS :=  $(SDK_FLAGS) -Wl,-syslibroot,$(SDK_PATH) $(LDFLAGS)
-CXXFLAGS :=  $(SDK_FLAGS) $(CXXFLAGS)
+  SDK_PATH ?= $(shell xcodebuild -version $(SDK_PARAM) Path)
+  SDK_FLAGS := -isysroot $(SDK_PATH) -mmacosx-version-min=$(SDK_VERSION)
+  CFLAGS :=  $(SDK_FLAGS) $(CFLAGS)
+  LDFLAGS :=  $(SDK_FLAGS) -Wl,-syslibroot,$(SDK_PATH) $(LDFLAGS)
+  CXXFLAGS :=  $(SDK_FLAGS) $(CXXFLAGS)
+else
+  # Linux or any other GNUstep supported platform
+  CFLAGS :=  $(shell gnustep-config --objc-flags) $(CFLAGS)
+  LDFLAGS :=  $(shell gnustep-config --gui-libs) $(LDFLAGS)
+  CXXFLAGS :=  $(shell gnustep-config --objc-flags) $(CXXFLAGS)
+endif
 
 # for timerisset()
 CFLAGS += -D_DARWIN_C_SOURCE
@@ -44,7 +52,12 @@ VERSION_FULL := $(shell sed -n '/_version.*=.*"/{s/.*"\(.*\)".*/\1/;p;}' desktop
 VERSION_MAJ := $(shell sed -n '/_major/{s/.* = \([0-9]*\).*/\1/;p;}' desktop/version.c)
 VERSION_MIN := $(shell sed -n '/_minor/{s/.* = \([0-9]*\).*/\1/;p;}' desktop/version.c)
 
-LDFLAGS += -Wl,-framework,Cocoa -Wl,-framework,Carbon $(NETLDFLAGS)
+ifeq ($(HOST),macosx)
+  LDFLAGS += -Wl,-framework,Cocoa -Wl,-framework,Carbon $(NETLDFLAGS)
+else
+#  LDFLAGS += -lopal -lgnustep-boron -lgnustep-corebase $(NETLDFLAGS)
+  LDFLAGS += -lopal -lgnustep-corebase $(NETLDFLAGS)
+endif
 
 $(eval $(call feature_enabled,IMAGEIO,-DWITH_APPLE_IMAGE,,Apple ImageIO       ))
 
@@ -176,6 +189,8 @@ $$(OBJROOT)/$(1).lproj: $(2)
 	$(Q)$(SPLIT_MESSAGES) -l $(1) -p cocoa -f messages resources/FatMessages > $$@/Messages
 endef
 
+ifeq ($(HOST),macosx)
+
 # compile_xib (xib) (lang)
 define compile_xib
 $$(OBJROOT)/$(2).lproj: $$(OBJROOT)/$(2).lproj/$(1:.xib=.nib)
@@ -190,6 +205,26 @@ $$(OBJROOT)/$(2).lproj/$(1:.xib=.nib): $(FRONTEND_RESOURCES_DIR)/$(2).lproj/$(1)
 endif
 
 endef
+
+else # not macosx
+
+# compile_xib (xib) (lang)
+define compile_xib
+$$(OBJROOT)/$(2).lproj: $$(OBJROOT)/$(2).lproj/$(1)
+
+$$(OBJROOT)/$(2).lproj/$(1): $(FRONTEND_RESOURCES_DIR)/$(1) $$(OBJROOT)/created
+	$(VQ)echo Compiling XIB $(1) for language $(2)
+	$(Q)$(MKDIR) -p $$(OBJROOT)/$(2).lproj
+	$(Q)cp $(FRONTEND_RESOURCES_DIR)/$(1) $$@
+#TODO: translate strings
+
+ifeq ($(wildcard $(FRONTEND_RESOURCES_DIR)/$(2).lproj/$(1).strings),$(FRONTEND_RESOURCES_DIR)/$(2).lproj/$(1).strings)
+$$(OBJROOT)/$(2).lproj/$(1): $(FRONTEND_RESOURCES_DIR)/$(2).lproj/$(1).strings
+endif
+
+endef
+
+endif # macosx
 
 $(foreach lang,$(LANGUAGES),$(eval $(call make_lproj,$(lang),$(addprefix $(FRONTEND_RESOURCES_DIR)/$(lang).lproj/,$(LOCALIZED_RESOURCES)))))
 $(foreach lang,$(LANGUAGES),$(foreach xib,$(S_XIBS),$(eval $(call compile_xib,$(xib),$(lang)))))
@@ -208,6 +243,10 @@ NetSurf.app: NetSurf $(FRONTEND_SOURCE_DIR)/Makefile $(R_RESOURCES) NetSurf.app/
 	$(Q)$(MKDIR) -p NetSurf.app/Contents/Resources
 	$(Q)cp -pLR $(R_RESOURCES) NetSurf.app/Contents/Resources
 	$(Q)echo 'APPL????' > NetSurf.app/Contents/PkgInfo
+	$(Q)cp NetSurf NetSurf.app/
+	$(Q)rm -f NetSurf.app/Resources
+	$(Q)ln -s Contents/Resources NetSurf.app/
+	$(Q)cp NetSurf.app/Contents/PkgInfo NetSurf.app/Contents/Info.plist  NetSurf.app/
 
 NetSurf.app/Contents/Info.plist: $(FRONTEND_RESOURCES_DIR)/NetSurf-Info.plist $(FRONTEND_SOURCE_DIR)/Makefile
 	$(VQ)echo Generating Info.plist
