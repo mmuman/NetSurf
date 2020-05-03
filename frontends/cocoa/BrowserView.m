@@ -461,7 +461,8 @@ static browser_mouse_state cocoa_mouse_flags_for_event( NSEvent *evt )
 
 - (void) adjustFrame
 {
-        browser_window_schedule_reformat(browser);
+        if (browser)
+                browser_window_schedule_reformat(browser);
 
         [super adjustFrame];
 }
