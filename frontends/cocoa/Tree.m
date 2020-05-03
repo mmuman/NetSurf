@@ -21,6 +21,7 @@
 #import "cocoa/font.h"
 #import "cocoa/plotter.h"
 
+#import "utils/errors.h"
 #import "netsurf/plotters.h"
 #import "cocoa/desktop-tree.h"
 

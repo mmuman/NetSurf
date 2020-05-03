@@ -19,6 +19,7 @@
 #import "cocoa/TreeView.h"
 #import "cocoa/Tree.h"
 
+#import "utils/errors.h"
 #import "netsurf/plotters.h"
 #import "netsurf/keypress.h"
 

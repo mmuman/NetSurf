@@ -56,7 +56,7 @@ struct tree {
 struct sslcert_session_data *ssl_current_session = NULL;
 const char *tree_hotlist_path = NULL;
 
-static void treeview_test_redraw_request(struct core_window *cw,
+static void treeview_test_invalidate(struct core_window *cw,
 		const struct rect *r)
 {
 	struct tree *tree = (struct tree *)cw;
@@ -74,8 +74,8 @@ static void treeview_test_update_size(struct core_window *cw,
 	tree->callbacks->resized(tree, width, height, tree->client_data);
 }
 
-static void treeview_test_scroll_visible(struct core_window *cw,
-		const struct rect *r)
+static void treeview_test_set_scroll(struct core_window *cw,
+		int x, int y)
 {
 }
 
@@ -116,9 +116,9 @@ static void treeview_test_drag_status(struct core_window *cw,
 }
 
 struct core_window_callback_table cw_t = {
-	.redraw_request = treeview_test_redraw_request,
+	.invalidate = treeview_test_invalidate,
 	.update_size = treeview_test_update_size,
-	.scroll_visible = treeview_test_scroll_visible,
+	.set_scroll = treeview_test_set_scroll,
 	.get_window_dimensions = treeview_test_get_window_dimensions,
 	.drag_status = treeview_test_drag_status
 };
@@ -131,20 +131,20 @@ static bool treeview_test_init(struct tree *tree)
 	case TREE_COOKIES:
 		err = cookie_manager_init(&cw_t, (struct core_window *)tree);
 		if (err != NSERROR_OK)
-			guit->misc->warning("Couldn't init new cookie manager.", 0);
+			cocoa_warning("Couldn't init new cookie manager.", 0);
 		break;
 	case TREE_HISTORY:
 		err = global_history_init(&cw_t, (struct core_window *)tree);
 		if (err != NSERROR_OK)
-			guit->misc->warning("Couldn't init new global history.", 0);
+			cocoa_warning("Couldn't init new global history.", 0);
 		break;
 	case TREE_HOTLIST:
 		err = hotlist_init(tree_hotlist_path, tree_hotlist_path);
 		if (err != NSERROR_OK)
-			guit->misc->warning("Couldn't init new hotlist.", 0);
+			cocoa_warning("Couldn't init new hotlist.", 0);
 		err = hotlist_manager_init(&cw_t, (struct core_window *)tree);
 		if (err != NSERROR_OK)
-			guit->misc->warning("Couldn't init hotlist manager.", 0);
+			cocoa_warning("Couldn't init hotlist manager.", 0);
 		break;
 	case TREE_SSLCERT:
 		assert(ssl_current_session == NULL &&
@@ -154,7 +154,7 @@ static bool treeview_test_init(struct tree *tree)
 		err = sslcert_viewer_init(&cw_t, (struct core_window *)tree,
 				ssl_current_session);
 		if (err != NSERROR_OK)
-			guit->misc->warning("Couldn't init new sslcert viewer.", 0);
+			cocoa_warning("Couldn't init new sslcert viewer.", 0);
 		break;
 	}
 
@@ -169,17 +169,17 @@ static bool treeview_test_fini(struct tree *tree)
 	case TREE_COOKIES:
 		err = cookie_manager_fini();
 		if (err != NSERROR_OK)
-			guit->misc->warning("Couldn't finalise cookie manager.", 0);
+			cocoa_warning("Couldn't finalise cookie manager.", 0);
 		break;
 	case TREE_HISTORY:
 		err = global_history_fini();
 		if (err != NSERROR_OK)
-			guit->misc->warning("Couldn't finalise cookie manager.", 0);
+			cocoa_warning("Couldn't finalise cookie manager.", 0);
 		break;
 	case TREE_HOTLIST:
 		err = hotlist_fini();
 		if (err != NSERROR_OK)
-			guit->misc->warning("Couldn't finalise hotlist.", 0);
+			cocoa_warning("Couldn't finalise hotlist.", 0);
 		break;
 	case TREE_SSLCERT:
 		assert(ssl_current_session != NULL &&
@@ -187,7 +187,7 @@ static bool treeview_test_fini(struct tree *tree)
 		err = sslcert_viewer_fini(ssl_current_session);
 		ssl_current_session = NULL;
 		if (err != NSERROR_OK)
-			guit->misc->warning("Couldn't finalise sslcert viewer.", 0);
+			cocoa_warning("Couldn't finalise sslcert viewer.", 0);
 		break;
 	}
 
@@ -281,7 +281,7 @@ struct tree *tree_create(unsigned int flags,
 	tree = calloc(sizeof(struct tree), 1);
 	if (tree == NULL) {
 		NSLOG(netsurf, DEBUG, "calloc failed");
-		guit->misc->warning(messages_get_errorcode(NSERROR_NOMEM), 0);
+		cocoa_warning(messages_get_errorcode(NSERROR_NOMEM), 0);
 		return NULL;
 	}
 
