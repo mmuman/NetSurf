@@ -33,7 +33,6 @@ static void bilinearShadedColor(void *info, const CGFloat *in, CGFloat *out){
 
 - (void)linearGradientFillWithStartColor:(NSColor *)startColor endColor:(NSColor *)endColor {
 	static const CGFunctionCallbacks callbacks = {0, &linearShadedColor, NULL};
-
 	[self customHorizontalFillWithCallbacks:callbacks firstColor:startColor secondColor:endColor];
 }
 
@@ -92,7 +91,9 @@ static void bilinearShadedColor(void *info, const CGFloat *in, CGFloat *out){
 
 	CGContextSaveGState(currentContext);
 	[self addClip];
+#ifndef GNUSTEP
 	CGContextDrawShading(currentContext, shading);
+#endif
 	CGContextRestoreGState(currentContext);
 
 	CGShadingRelease(shading);

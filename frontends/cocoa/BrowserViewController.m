@@ -213,6 +213,7 @@
                  * allow it to be re-used next time NetSurf is started. The
                  * memory overhead from doing this is under 1 byte per
                  * filename. */
+#ifdef __APPLE__ /* can't get GNUstep to provide CF stuff yet */
                 const char *filename = filename_request();
                 const char *extension = "txt";
                 fprintf(stderr, "filename '%p'\n", filename);
@@ -234,6 +235,7 @@
                 NSData *data = [NSData dataWithBytes:source length:size];
                 [data writeToURL:dataUrl atomically:NO];
                 path = [[dataUrl path] UTF8String];
+#endif /*__APPLE__*/
         }
 
         if (path) {

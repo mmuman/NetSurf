@@ -12,6 +12,11 @@
 #import "PSMProgressIndicator.h"
 #import "PSMTabDragAssistant.h"
 
+#ifdef GNUSTEP
+/* this seems to be a private member which has a different name in GNUstep. */
+#define _controlView _control_view
+#endif
+
 @interface PSMTabBarControl (Private)
 - (void)update;
 @end

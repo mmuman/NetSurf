@@ -38,7 +38,9 @@
 
 - (void) attachToView: (NSView *) view;
 {
+#ifndef GNUSTEP
 	NSDisableScreenUpdates();
+#endif
 	
 	ArrowWindow *box = (ArrowWindow *)[self window];
 
@@ -84,7 +86,9 @@
 	[box setArrowPosition: arrowPositionChange];
 	[box setFrame: frame display: YES];
 	
+#ifndef GNUSTEP
 	NSEnableScreenUpdates();
+#endif
 }
 
 - (void) detach;

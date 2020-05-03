@@ -193,7 +193,9 @@
 		[self setPostsFrameChangedNotifications:YES];
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameDidChange:) name:NSViewFrameDidChangeNotification object:self];
 	}
+#ifndef GNUSTEP
 	[self setTarget:self];
+#endif
 	return self;
 }
 
@@ -1391,6 +1393,7 @@
 		}
 		if(!_springTimer) {
 			//Finder's default delay time, as of Tiger, is 668 ms. If the user has never changed it, there's no setting in its defaults, so we default to that amount.
+#ifndef GNUSTEP
 			NSNumber *delayNumber = [(NSNumber *)CFPreferencesCopyAppValue((CFStringRef)@"SpringingDelayMilliseconds", (CFStringRef)@"com.apple.finder") autorelease];
 			NSTimeInterval delaySeconds = delayNumber ?[delayNumber doubleValue] / 1000.0 : 0.668;
 			_springTimer = [[NSTimer scheduledTimerWithTimeInterval:delaySeconds
@@ -1398,6 +1401,7 @@
 							 selector:@selector(fireSpring:)
 							 userInfo:sender
 							 repeats:NO] retain];
+#endif /* GNUSTEP */
 		}
 		return NSDragOperationCopy;
 	}

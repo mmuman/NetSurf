@@ -118,7 +118,11 @@ void cocoa_draw_string( CGFloat x, CGFloat y, const char *bytes, size_t length, 
 	if (layout == nil) return;
 	
 	NSFont *font = [cocoa_text_storage attribute: NSFontAttributeName atIndex: 0 effectiveRange: NULL];
+#ifdef __APPLE__
 	CGFloat baseline = [layout defaultLineHeightForFont: font] * 3.0 / 4.0;
+#else
+	CGFloat baseline = [font defaultLineHeightForFont] * 3.0 / 4.0;
+#endif
 	
 	NSRange glyphRange = [layout glyphRangeForTextContainer: cocoa_text_container];
 	[layout drawGlyphsForGlyphRange: glyphRange atPoint: NSMakePoint( x, y - baseline )];

@@ -112,6 +112,7 @@ static void cocoa_register_download( DownloadWindowController *download );
 
         [[NSFileManager defaultManager] createFileAtPath: path contents: nil attributes: nil];
 
+#ifdef __APPLE__ /* can't get GNUstep to provide CF stuff yet */
         FSRef ref;
         if (CFURLGetFSRef( (CFURLRef)targetURL, &ref )) {
                 NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -138,6 +139,7 @@ static void cocoa_register_download( DownloadWindowController *download );
                 [outputFile writeData: savedData];
                 [self setSavedData: nil];
         }
+#endif /*__APPLE__*/
 
         [self removeIfPossible];
 }
@@ -339,12 +341,14 @@ static NSString *cocoa_time_string( unsigned seconds )
 
 - (NSImage *) icon;
 {
+#ifndef GNUSTEP//BORON?
         NSString *type = [(NSString *)UTTypeCreatePreferredIdentifierForTag( kUTTagClassMIMEType, (CFStringRef)mimeType, NULL ) autorelease];
         if ([type hasPrefix: @"dyn."] || [type isEqualToString: (NSString *)kUTTypeData]) {
                 NSString *pathExt = [[url path] pathExtension];
                 type = [(NSString *)UTTypeCreatePreferredIdentifierForTag( kUTTagClassFilenameExtension, (CFStringRef)pathExt, NULL ) autorelease];
         }
         return [[NSWorkspace sharedWorkspace] iconForFileType: type];
+#endif /* GNUSTEP */
 }
 
 

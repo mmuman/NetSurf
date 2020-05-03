@@ -187,12 +187,14 @@ static inline NSRect cocoa_get_caret_rect( BrowserView *view )
 
 - (void) viewDidMoveToWindow
 {
+#ifndef GNUSTEP
         NSTrackingArea *area = [[NSTrackingArea alloc] initWithRect: [self visibleRect]
                                                             options: NSTrackingMouseMoved | NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect
                                                               owner: self
                                                            userInfo: nil];
         [self addTrackingArea: area];
         [area release];
+#endif
 }
 
 static browser_mouse_state cocoa_mouse_flags_for_event( NSEvent *evt )
