@@ -11,6 +11,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import <CoreGraphics/CoreGraphics.h>
 #import "PSMTabBarControl.h"
 
 #define kPSMTabDragAnimationSteps 8

@@ -9,6 +9,7 @@
 
 
 #import <Cocoa/Cocoa.h>
+#import <CoreGraphics/CoreGraphics.h>
 
 @interface NSBezierPath (AMShading)
 

@@ -16,6 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#import <LaunchServices/UTCoreTypes.h>
+#import <LaunchServices/UTType.h>
+
 #import "utils/log.h"
 #import "utils/nsurl.h"
 #import "desktop/download.h"
