@@ -345,7 +345,7 @@ void cocoa_update_scale_factor( void )
 	const CGFloat scale = [[NSScreen mainScreen] userSpaceScaleFactor];
 	cocoa_scale_factor = scale == 1.0 ? 1.0 : 1.0 / scale;
 	cocoa_half_pixel = 0.5 * cocoa_scale_factor;
-        browser_set_dpi( points_per_inch * scale );
+        browser_set_dpi( (int)(points_per_inch * scale) );
 }
 
 static inline void cocoa_center_pixel( bool x, bool y ) 
