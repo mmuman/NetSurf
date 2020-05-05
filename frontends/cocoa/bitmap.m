@@ -231,6 +231,9 @@ static nserror bitmap_render(struct bitmap *bitmap, struct hlcache_handle *conte
 {
 	int bwidth = bitmap_get_width( bitmap );
 	int bheight = bitmap_get_height( bitmap );
+printf("bitmap_render() w %d h %d\n", bwidth, bheight);
+fflush(stdout);
+return NSERROR_NOT_IMPLEMENTED;
 
 	struct redraw_context ctx = {
 		.interactive = false,
