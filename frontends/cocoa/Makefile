@@ -28,22 +28,28 @@ endif
   CFLAGS :=  $(SDK_FLAGS) $(CFLAGS)
   LDFLAGS :=  $(SDK_FLAGS) -Wl,-syslibroot,$(SDK_PATH) $(LDFLAGS)
   CXXFLAGS :=  $(SDK_FLAGS) $(CXXFLAGS)
+
+  # for timerisset()
+  CFLAGS += -D_DARWIN_C_SOURCE
+  CFLAGS +=  -D_BSD_SOURCE -D_POSIX_C_SOURCE
+
 else
-  # Linux or any other GNUstep supported platform
+
+# Linux or any other GNUstep supported platform
   CFLAGS :=  $(shell gnustep-config --objc-flags) $(CFLAGS)
   LDFLAGS :=  $(shell gnustep-config --gui-libs) $(LDFLAGS)
   CXXFLAGS :=  $(shell gnustep-config --objc-flags) $(CXXFLAGS)
-endif
 
-# for timerisset()
-CFLAGS += -D_DARWIN_C_SOURCE
+  CFLAGS += -D_DEFAULT_SOURCE -D_POSIX_C_SOURCE=200809L
+
+endif
 
 LDFLAGS += -L/usr/lib
 LDFLAGS += -L/usr/X11/lib
 LDFLAGS += -lm -lcurl
 LDFLAGS += -lssl -lcrypto
 
-CFLAGS += -Dnscocoa -D_BSD_SOURCE -D_POSIX_C_SOURCE -std=c99 -g -Os
+CFLAGS += -Dnscocoa -std=c99 -g -Os
 
 CFLAGS += -I/usr/X11/include
 CFLAGS += -include cocoa/Prefix.pch
