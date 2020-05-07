@@ -48,6 +48,7 @@
 #include <sys/param.h>
 
 #include <libwapcaplet/libwapcaplet.h>
+#include "utils/errors.h"
 #include "content/content_protected.h"
 #include "content/fetch.h"
 #include "content/gopher.h"
