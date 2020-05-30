@@ -323,17 +323,6 @@ static nserror gui_launch_url(nsurl *url)
     return NSERROR_OK;
 }
 
-struct ssl_cert_info;
-
-static nserror
-gui_cert_verify(nsurl *url,
-                const struct ssl_cert_info *certs,
-                unsigned long num,
-                nserror (*cb)(bool proceed,void *pw), void *cbpw)
-{
-	return NSERROR_NOT_IMPLEMENTED;
-}
-
 
 static struct gui_window_table window_table = {
 	.create = gui_window_create,
@@ -360,7 +349,6 @@ static struct gui_misc_table browser_table = {
 	.schedule = cocoa_schedule,
 
 	.launch_url = gui_launch_url,
-	.cert_verify = gui_cert_verify,
 };
 
 struct gui_misc_table *cocoa_misc_table = &browser_table;
