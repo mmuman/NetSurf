@@ -158,7 +158,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 	const char *p = data;
 	size_t left = size;
 	fetch_msg msg;
-	NSLOG(gopher, DEBUG, "@ %p, (,, %" PRIsizet ")", s, size);
+	NSLOG(netsurf, DEBUG, "@ %p, (,, %" PRIsizet ")", s, size);
 
 	/* actually called when done getting it all */
 	if (size == 0)
@@ -167,7 +167,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 			if (gopher_generate_bottom(buffer, sizeof(buffer)))
 			{
 				/* send data to the caller */
-				/*NSLOG(gopher, DEBUG, "FETCH_DATA");*/
+				/*NSLOG(netsurf, DEBUG, "FETCH_DATA");*/
 				msg.type = FETCH_DATA;
 				msg.data.header_or_data.buf = (const uint8_t *) buffer;
 				msg.data.header_or_data.len = strlen(buffer);
@@ -177,7 +177,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 		return 0;
 	}
 
-	NSLOG(gopher, DEBUG, "iteration: cached %" PRIsizet " left %" PRIsizet, s->cached, left);
+	NSLOG(netsurf, DEBUG, "iteration: cached %" PRIsizet " left %" PRIsizet, s->cached, left);
 
 	if (s->cached) {
 		s->input = realloc(s->input, s->cached + left);
@@ -187,7 +187,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 		s->cached = left;
 	}
 
-	NSLOG(gopher, DEBUG, "copied: cached %" PRIsizet " left %" PRIsizet, s->cached, left);
+	NSLOG(netsurf, DEBUG, "copied: cached %" PRIsizet " left %" PRIsizet, s->cached, left);
 
 	if (!s->head_done)
 	{
@@ -202,7 +202,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 		if (gopher_generate_top(buffer, sizeof(buffer)))
 		{
 			/* send data to the caller */
-			/*NSLOG(gopher, DEBUG, "FETCH_DATA");*/
+			/*NSLOG(netsurf, DEBUG, "FETCH_DATA");*/
 			msg.type = FETCH_DATA;
 			msg.data.header_or_data.buf = (const uint8_t *) buffer;
 			msg.data.header_or_data.len = strlen(buffer);
@@ -215,7 +215,7 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 		if (gopher_generate_title(title, buffer, sizeof(buffer), dotdot))
 		{
 			/* send data to the caller */
-			/*NSLOG(gopher, DEBUG, "FETCH_DATA");*/
+			/*NSLOG(netsurf, DEBUG, "FETCH_DATA");*/
 			msg.type = FETCH_DATA;
 			msg.data.header_or_data.buf = (const uint8_t *) buffer;
 			msg.data.header_or_data.len = strlen(buffer);
@@ -227,15 +227,15 @@ size_t gopher_fetch_data(struct gopher_state *s, char *data, size_t size)
 
 	while (gopher_generate_row(&p, &left, buffer, sizeof(buffer), &s->image_count))
 	{
-		NSLOG(gopher, DEBUG, "done row, left %" PRIsizet, left);
+		NSLOG(netsurf, DEBUG, "done row, left %" PRIsizet, left);
 		/* send data to the caller */
-		/*NSLOG(gopher, DEBUG, "FETCH_DATA");*/
+		/*NSLOG(netsurf, DEBUG, "FETCH_DATA");*/
 		msg.type = FETCH_DATA;
 		msg.data.header_or_data.buf = (const uint8_t *) buffer;
 		msg.data.header_or_data.len = strlen(buffer);
 		fetch_send_callback(&msg, s->fetch_handle);
 	}
-	NSLOG(gopher, DEBUG, "last row, left %" PRIsizet, left);
+	NSLOG(netsurf, DEBUG, "last row, left %" PRIsizet, left);
 
 	/* move the remainder to the beginning of the buffer */
 	if (left) {
@@ -269,7 +269,7 @@ long gopher_get_http_code(struct gopher_state *s, char *data, size_t size)
 	/* We didn't receive anything yet, check for error.
 	 * type '3' items report an error
 	 */
-	/*NSLOG(gopher, DEBUG, "data[0] == 0x%02x '%c'", data[0], data[0]);*/
+	/*NSLOG(netsurf, DEBUG, "data[0] == 0x%02x '%c'", data[0], data[0]);*/
 	if (data[0] == GOPHER_TYPE_ERROR) {
 		lwc_string *path;
 		size_t i = 1;
@@ -338,7 +338,7 @@ bool gopher_probe_mime(struct gopher_state *s, char *data, size_t size)
 	/* leave other types unknown and let the mime sniffer handle them */
 
 	if (mime) {
-		NSLOG(gopher, DEBUG, "gopher %p mime is '%s'", s, mime);
+		NSLOG(netsurf, DEBUG, "gopher %p mime is '%s'", s, mime);
 		snprintf(h, sizeof h, "Content-type: %s\r\n", mime);
 		h[sizeof h - 1] = 0;
 
@@ -350,7 +350,7 @@ bool gopher_probe_mime(struct gopher_state *s, char *data, size_t size)
 		return true;
 	}
 
-	NSLOG(gopher, DEBUG, "gopher %p unknown mime (type '%c')", s, s->type);
+	NSLOG(netsurf, DEBUG, "gopher %p unknown mime (type '%c')", s, s->type);
 
 	return false;
 }
@@ -811,7 +811,7 @@ static bool gopher_generate_row_internal(char type, char *fields[FIELD_COUNT],
 		break;
 	default:
 		/* yet to be tested items, please report when you see them! */
-		NSLOG(gopher, DEBUG, "warning: unknown gopher item type 0x%02x '%c'", type, type);
+		NSLOG(netsurf, DEBUG, "warning: unknown gopher item type 0x%02x '%c'", type, type);
 		error = snprintf(buffer, buffer_length,
 				"<a href=\"gopher://%s%s%s/%c%s\">"
 				"<span class=\"gopher-item-unknown unknown\">%s</span></a>"
@@ -863,7 +863,7 @@ static bool gopher_generate_row(const char **data, size_t *size,
 		if (!type) {
 			type = *p;
 			if (!type || type == '\n' || type == '\r') {
-				NSLOG(gopher, DEBUG, "warning: invalid gopher item type 0x%02x", type);
+				NSLOG(netsurf, DEBUG, "warning: invalid gopher item type 0x%02x", type);
 				/* force reparsing the type */
 				type = 0;
 			}
@@ -873,17 +873,17 @@ static bool gopher_generate_row(const char **data, size_t *size,
 		switch (*p) {
 		case '\n':
 			if (field > 0) {
-				NSLOG(gopher, DEBUG, "warning: unterminated gopher item '%c'", type);
+				NSLOG(netsurf, DEBUG, "warning: unterminated gopher item '%c'", type);
 			}
 			/* FALLTHROUGH */
 		case '\r':
 			if (sz < 2)
 				continue;	/* \n should be in the next buffer */
 			if (p[1] != '\n') {
-				NSLOG(gopher, DEBUG, "warning: CR without LF in gopher item '%c'", type);
+				NSLOG(netsurf, DEBUG, "warning: CR without LF in gopher item '%c'", type);
 			}
 			if (field < FIELD_PORT && type != '.') {
-				NSLOG(gopher, DEBUG, "warning: unterminated gopher item '%c'", type);
+				NSLOG(netsurf, DEBUG, "warning: unterminated gopher item '%c'", type);
 			}
 			fields[field] = malloc(p - s + 1);
 			memcpy(fields[field], s, p - s);
@@ -909,7 +909,7 @@ static bool gopher_generate_row(const char **data, size_t *size,
 			return ok;
 		case '\x09':
 			if (field >= FIELD_GPFLAG) {
-				NSLOG(gopher, DEBUG, "warning: extra tab in gopher item '%c'", type);
+				NSLOG(netsurf, DEBUG, "warning: extra tab in gopher item '%c'", type);
 				break;
 			}
 			fields[field] = malloc(p - s + 1);
