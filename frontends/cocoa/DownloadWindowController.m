@@ -348,6 +348,8 @@ static NSString *cocoa_time_string( unsigned seconds )
                 type = [(NSString *)UTTypeCreatePreferredIdentifierForTag( kUTTagClassFilenameExtension, (CFStringRef)pathExt, NULL ) autorelease];
         }
         return [[NSWorkspace sharedWorkspace] iconForFileType: type];
+#else
+        return nil;
 #endif /* GNUSTEP */
 }
 
