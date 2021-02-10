@@ -16,6 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#import <LaunchServices/UTType.h>
+
 #import "utils/nsoption.h"
 #import "utils/corestrings.h"
 #import "utils/filename.h"
