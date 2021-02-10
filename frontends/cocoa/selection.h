@@ -16,4 +16,4 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-struct gui_clipboard_table *cocoa_clipboard_table;
+extern struct gui_clipboard_table *cocoa_clipboard_table;

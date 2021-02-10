@@ -18,7 +18,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-struct gui_download_table *cocoa_download_table;
+extern struct gui_download_table *cocoa_download_table;
 
 @interface DownloadWindowController : NSWindowController {
         struct download_context *context;

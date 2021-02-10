@@ -51,4 +51,4 @@ typedef enum {
 
 @end
 
-struct gui_search_table *cocoa_search_table;
+extern struct gui_search_table *cocoa_search_table;
